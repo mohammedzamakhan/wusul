@@ -221,6 +221,15 @@ function generateSignature(sharedSecret: string, payload: any): string {
 | PATCH | `/v1/console/card-templates/:id` | Update card template | Enterprise |
 | GET | `/v1/console/card-templates/:id/logs` | Read event logs | Enterprise |
 
+#### Wallet Pass Management (Phase 2)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/v1/wallet/passes/:accessPassId` | Generate wallet pass | Yes |
+| GET | `/v1/wallet/apple/v1/passes/:passTypeIdentifier/:serialNumber` | Get Apple Wallet pass | Token |
+| POST | `/v1/wallet/apple/v1/devices/:deviceLibraryIdentifier/registrations/:passTypeIdentifier/:serialNumber` | Register device for Apple push notifications | Token |
+| DELETE | `/v1/wallet/apple/v1/devices/:deviceLibraryIdentifier/registrations/:passTypeIdentifier/:serialNumber` | Unregister device | Token |
+
 ### Example: Issue Access Pass
 
 ```bash
@@ -280,6 +289,117 @@ Wusul sends webhook notifications using the CloudEvents specification.
   }
 }
 ```
+
+## Phase 2 Features (Completed)
+
+### 1. Multi-Language Support (i18n)
+
+Full internationalization support for English and Arabic languages:
+
+**Usage:**
+```bash
+# Set language via header
+curl -X GET http://localhost:3000/v1/access-passes \
+  -H "Accept-Language: ar"
+
+# Set language via query parameter
+curl -X GET http://localhost:3000/v1/access-passes?lng=ar
+```
+
+**Supported Languages:**
+- English (en) - Default
+- Arabic (ar) - Full RTL support
+
+All API responses, error messages, and notifications are available in both languages.
+
+### 2. Apple Wallet Integration
+
+Generate PKPass files for iOS devices with NFC support:
+
+**Setup:**
+1. Place certificates in `certificates/apple/`:
+   - `signerCert.pem` - Apple Wallet certificate
+   - `signerKey.pem` - Private key
+   - `wwdr.pem` - Apple WWDR certificate
+
+2. Configure environment variables:
+```env
+APPLE_TEAM_ID=your-team-id
+APPLE_PASS_TYPE_ID=pass.com.wusul.access
+APPLE_CERT_PASSPHRASE=your-passphrase
+```
+
+**Usage:**
+```bash
+# Generate Apple Wallet pass
+curl -X GET http://localhost:3000/v1/wallet/passes/{accessPassId} \
+  -H "X-ACCT-ID: 0xYourAccountId" \
+  -H "X-PAYLOAD-SIG: signature"
+```
+
+**Features:**
+- NFC tap-to-unlock support
+- Push notifications for updates
+- Dynamic pass updates via web service
+- Location-based notifications
+
+### 3. Google Wallet Integration
+
+Generate Google Wallet passes for Android devices:
+
+**Setup:**
+1. Create service account in Google Cloud Console
+2. Place `service-account.json` in `certificates/google/`
+3. Configure environment:
+```env
+GOOGLE_WALLET_ISSUER_ID=your-issuer-id
+```
+
+**Usage:**
+```bash
+# Generate Google Wallet pass URL
+curl -X GET http://localhost:3000/v1/wallet/passes/{accessPassId} \
+  -H "X-ACCT-ID: 0xYourAccountId" \
+  -H "X-PAYLOAD-SIG: signature"
+```
+
+**Features:**
+- Smart Tap (NFC) support
+- Real-time pass updates
+- QR code fallback
+- Rich visual customization
+
+### 4. SMS/Email Notifications
+
+Automated notifications for access pass lifecycle events:
+
+**Email Configuration (SMTP):**
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-password
+SMTP_FROM=noreply@wusul.com
+```
+
+**SMS Configuration (Twilio):**
+```env
+TWILIO_ACCOUNT_SID=your-account-sid
+TWILIO_AUTH_TOKEN=your-auth-token
+TWILIO_PHONE_NUMBER=+1234567890
+```
+
+**Notification Events:**
+- ✉️ Access pass issued
+- ✉️ Access pass suspended
+- ✉️ Access pass resumed
+- ✉️ Access pass expiring soon (7 days before)
+
+**Features:**
+- Bilingual templates (English & Arabic)
+- HTML email templates
+- SMS with shortened URLs
+- Automatic delivery retry
 
 ## MENA-Specific Features
 
@@ -427,11 +547,11 @@ Logs are structured using Pino and include:
 - ✅ Webhook system
 - ✅ Docker deployment
 
-### Phase 2 (Q2 2025)
-- [ ] Apple Wallet integration
-- [ ] Google Wallet integration
-- [ ] SMS/Email notifications
-- [ ] Multi-language support (full i18n)
+### Phase 2 (Q2 2025) ✅ COMPLETED
+- ✅ Apple Wallet integration
+- ✅ Google Wallet integration
+- ✅ SMS/Email notifications
+- ✅ Multi-language support (full i18n)
 
 ### Phase 3 (Q3 2025)
 - [ ] UAE Pass integration
