@@ -1,6 +1,5 @@
 import nodemailer, { Transporter } from 'nodemailer';
 import logger from '../../config/logger';
-import i18next from '../../config/i18n';
 
 /**
  * Email Notification Service
@@ -23,7 +22,6 @@ export class EmailService {
       const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
       const smtpUser = process.env.SMTP_USER;
       const smtpPass = process.env.SMTP_PASS;
-      const smtpFrom = process.env.SMTP_FROM || 'noreply@wusul.com';
 
       if (!smtpHost || !smtpUser || !smtpPass) {
         logger.warn('Email service not configured. Email notifications will be disabled.');
@@ -69,7 +67,8 @@ export class EmailService {
 
     try {
       const language = data.language || 'en';
-      const t = i18next.getFixedT(language);
+      // TODO: Use i18next for translations when email templates are ready
+      // const t = i18next.getFixedT(language);
 
       const subject = language === 'ar'
         ? 'تم إصدار تصريح الوصول الخاص بك'

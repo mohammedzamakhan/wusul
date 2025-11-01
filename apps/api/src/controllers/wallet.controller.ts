@@ -61,12 +61,15 @@ export const getApplePass = async (req: AuthenticatedRequest, res: Response): Pr
 export const registerAppleDevice = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
   try {
     const { deviceLibraryIdentifier, serialNumber } = req.params;
-    const _pushToken = req.body.pushToken;
+    const pushToken = req.body.pushToken;
 
     logger.info(`Apple Wallet device registered: ${deviceLibraryIdentifier} for pass ${serialNumber}`);
 
     // Store device registration in database for push notifications
     // This would typically be stored in a separate table
+    // TODO: Implement device registration storage with pushToken
+
+    void pushToken; // Marked as intentionally unused for now
 
     return res.status(201).json({ success: true });
   } catch (error: any) {
@@ -98,12 +101,17 @@ export const unregisterAppleDevice = async (req: AuthenticatedRequest, res: Resp
  */
 export const getPassesForDevice = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
   try {
-    const _deviceLibraryIdentifier = req.params.deviceLibraryIdentifier;
-    const _passTypeIdentifier = req.params.passTypeIdentifier;
-    const _passesUpdatedSince = req.query.passesUpdatedSince;
+    const deviceLibraryIdentifier = req.params.deviceLibraryIdentifier;
+    const passTypeIdentifier = req.params.passTypeIdentifier;
+    const passesUpdatedSince = req.query.passesUpdatedSince;
 
     // Query database for passes that need to be updated
+    // TODO: Implement query logic using deviceLibraryIdentifier, passTypeIdentifier, and passesUpdatedSince
     const serialNumbers: string[] = [];
+
+    void deviceLibraryIdentifier; // Marked as intentionally unused for now
+    void passTypeIdentifier; // Marked as intentionally unused for now
+    void passesUpdatedSince; // Marked as intentionally unused for now
 
     // For now, return empty list
     if (serialNumbers.length === 0) {

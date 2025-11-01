@@ -254,7 +254,7 @@ class CardTemplateService {
         WebhookEventType.CARD_TEMPLATE_UPDATED,
         {
           card_template_id: updated.exId,
-          protocol: updated.protocol,
+          protocol: cardTemplate.protocol,
           metadata: updated.metadata,
         }
       );
@@ -410,7 +410,7 @@ class CardTemplateService {
       ]);
 
       return {
-        items: events.map((event) => ({
+        items: events.map((event: typeof events[0]) => ({
           id: event.id,
           event_type: event.eventType,
           device: event.device,
@@ -424,7 +424,7 @@ class CardTemplateService {
           metadata: event.metadata,
           created_at: event.createdAt,
         })),
-        logs: events.map((event) => ({ // Alias for backwards compatibility
+        logs: events.map((event: typeof events[0]) => ({ // Alias for backwards compatibility
           id: event.id,
           event_type: event.eventType,
           device: event.device,
