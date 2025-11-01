@@ -34,7 +34,7 @@ class WebhookService {
       const cloudEvent = createCloudEvent(eventType, data);
 
       // Send to all webhooks
-      const deliveryPromises = webhooks.map((webhook) =>
+      const deliveryPromises = webhooks.map((webhook: typeof webhooks[0]) =>
         this.deliverWebhook(webhook.id, webhook.url, webhook.secret, cloudEvent, eventType)
       );
 

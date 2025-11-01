@@ -74,6 +74,7 @@ export const updateCardTemplateSchema = z
     allow_on_multiple_devices: z.boolean().optional(),
     watch_count: z.number().int().min(1).max(5).optional(),
     iphone_count: z.number().int().min(1).max(5).optional(),
+    design: designSchema.optional(),
     support_info: supportInfoSchema.optional(),
     metadata: z.record(z.any()).optional(),
   })
