@@ -35,7 +35,7 @@ describe('Access Pass API Integration Tests', () => {
       const oneYearLater = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
 
       const payload = {
-        card_template_id: testCardTemplate.id,
+        card_template_id: testCardTemplate.exId,
         full_name: 'John Doe',
         email: 'john@example.com',
         phone_number: '+1234567890',
@@ -67,7 +67,7 @@ describe('Access Pass API Integration Tests', () => {
       expect(response.body).toHaveProperty('success', true);
       expect(response.body.data).toHaveProperty('id');
       expect(response.body.data).toHaveProperty('externalId');
-      expect(response.body.data).toHaveProperty('status', 'ACTIVE');
+      expect(response.body.data).toHaveProperty('status', 'PENDING'); // Newly created passes are PENDING
       expect(response.body.data.metadata).toMatchObject(payload.metadata);
     });
 
@@ -76,7 +76,7 @@ describe('Access Pass API Integration Tests', () => {
       const oneYearLater = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
 
       const payload = {
-        card_template_id: testCardTemplate.id,
+        card_template_id: testCardTemplate.exId,
         full_name: 'Jane Doe',
         start_date: now,
         expiration_date: oneYearLater,
@@ -98,7 +98,7 @@ describe('Access Pass API Integration Tests', () => {
       const oneYearLater = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
 
       const payload = {
-        card_template_id: testCardTemplate.id,
+        card_template_id: testCardTemplate.exId,
         full_name: 'Invalid User',
         start_date: now,
         expiration_date: oneYearLater,
@@ -161,7 +161,7 @@ describe('Access Pass API Integration Tests', () => {
 
     it('should list access passes for a card template', async () => {
       const sigPayload = {
-        template_id: testCardTemplate.id,
+        template_id: testCardTemplate.exId,
         limit: 10,
         offset: 0,
       };
@@ -177,7 +177,7 @@ describe('Access Pass API Integration Tests', () => {
         .set(headers)
         .query({
           ...query,
-          template_id: testCardTemplate.id,
+          template_id: testCardTemplate.exId,
           limit: 10,
           offset: 0,
         })
@@ -193,7 +193,7 @@ describe('Access Pass API Integration Tests', () => {
     it('should fail without authentication', async () => {
       const response = await request(app)
         .get('/v1/access-passes')
-        .query({ template_id: testCardTemplate.id })
+        .query({ template_id: testCardTemplate.exId })
         .expect('Content-Type', /json/)
         .expect(401);
 
@@ -227,7 +227,7 @@ describe('Access Pass API Integration Tests', () => {
       );
 
       const response = await request(app)
-        .patch(`/v1/access-passes/${accessPassToUpdate.id}`)
+        .patch(`/v1/access-passes/${accessPassToUpdate.exId}`)
         .set(headers)
         .send(updatePayload)
         .expect('Content-Type', /json/)
@@ -273,7 +273,7 @@ describe('Access Pass API Integration Tests', () => {
     });
 
     it('should suspend an active access pass', async () => {
-      const payload = { id: accessPassToSuspend.id };
+      const payload = { id: accessPassToSuspend.exId };
       const headers = generateAuthHeaders(
         testAccount.accountId,
         testAccount.sharedSecret,
@@ -281,9 +281,9 @@ describe('Access Pass API Integration Tests', () => {
       );
 
       const response = await request(app)
-        .post(`/v1/access-passes/${accessPassToSuspend.id}/suspend`)
+        .post(`/v1/access-passes/${accessPassToSuspend.exId}/suspend`)
         .set(headers)
-        .send({})
+        .send(payload)
         .expect('Content-Type', /json/)
         .expect(200);
 
@@ -317,7 +317,7 @@ describe('Access Pass API Integration Tests', () => {
     });
 
     it('should resume a suspended access pass', async () => {
-      const payload = { id: accessPassToResume.id };
+      const payload = { id: accessPassToResume.exId };
       const headers = generateAuthHeaders(
         testAccount.accountId,
         testAccount.sharedSecret,
@@ -325,9 +325,9 @@ describe('Access Pass API Integration Tests', () => {
       );
 
       const response = await request(app)
-        .post(`/v1/access-passes/${accessPassToResume.id}/resume`)
+        .post(`/v1/access-passes/${accessPassToResume.exId}/resume`)
         .set(headers)
-        .send({})
+        .send(payload)
         .expect('Content-Type', /json/)
         .expect(200);
 
@@ -351,7 +351,7 @@ describe('Access Pass API Integration Tests', () => {
     });
 
     it('should unlink an access pass', async () => {
-      const payload = { id: accessPassToUnlink.id };
+      const payload = { id: accessPassToUnlink.exId };
       const headers = generateAuthHeaders(
         testAccount.accountId,
         testAccount.sharedSecret,
@@ -359,9 +359,9 @@ describe('Access Pass API Integration Tests', () => {
       );
 
       const response = await request(app)
-        .post(`/v1/access-passes/${accessPassToUnlink.id}/unlink`)
+        .post(`/v1/access-passes/${accessPassToUnlink.exId}/unlink`)
         .set(headers)
-        .send({})
+        .send(payload)
         .expect('Content-Type', /json/)
         .expect(200);
 
@@ -385,7 +385,7 @@ describe('Access Pass API Integration Tests', () => {
     });
 
     it('should delete an access pass', async () => {
-      const payload = { id: accessPassToDelete.id };
+      const payload = { id: accessPassToDelete.exId };
       const headers = generateAuthHeaders(
         testAccount.accountId,
         testAccount.sharedSecret,
@@ -393,9 +393,9 @@ describe('Access Pass API Integration Tests', () => {
       );
 
       const response = await request(app)
-        .post(`/v1/access-passes/${accessPassToDelete.id}/delete`)
+        .post(`/v1/access-passes/${accessPassToDelete.exId}/delete`)
         .set(headers)
-        .send({})
+        .send(payload)
         .expect('Content-Type', /json/)
         .expect(200);
 

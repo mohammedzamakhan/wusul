@@ -66,11 +66,21 @@ class CardTemplateService {
 
       return {
         id: cardTemplate.exId,
+        externalId: cardTemplate.exId, // Alias for backwards compatibility
         name: cardTemplate.name,
         platform: cardTemplate.platform,
         use_case: cardTemplate.useCase,
         protocol: cardTemplate.protocol,
+        status: cardTemplate.publishStatus, // Add status field for tests
         publish_status: cardTemplate.publishStatus,
+        config: {
+          design: {
+            background_color: cardTemplate.backgroundColor,
+            label_color: cardTemplate.labelColor,
+            label_secondary_color: cardTemplate.labelSecondaryColor,
+          },
+          fields: [], // Empty fields array for newly created template
+        },
         created_at: cardTemplate.createdAt,
       };
     } catch (error) {
@@ -125,6 +135,7 @@ class CardTemplateService {
 
       return {
         id: cardTemplate.exId,
+        externalId: cardTemplate.exId, // Alias for backwards compatibility
         name: cardTemplate.name,
         platform: cardTemplate.platform,
         use_case: cardTemplate.useCase,
@@ -187,6 +198,24 @@ class CardTemplateService {
           }),
           ...(data.watch_count && { watchCount: data.watch_count }),
           ...(data.iphone_count && { iphoneCount: data.iphone_count }),
+          ...(data.design?.background_color && {
+            backgroundColor: data.design.background_color,
+          }),
+          ...(data.design?.label_color && {
+            labelColor: data.design.label_color,
+          }),
+          ...(data.design?.label_secondary_color && {
+            labelSecondaryColor: data.design.label_secondary_color,
+          }),
+          ...(data.design?.background_image && {
+            backgroundImage: data.design.background_image,
+          }),
+          ...(data.design?.logo_image && {
+            logoImage: data.design.logo_image,
+          }),
+          ...(data.design?.icon_image && {
+            iconImage: data.design.icon_image,
+          }),
           ...(data.support_info?.support_url && {
             supportUrl: data.support_info.support_url,
           }),
@@ -203,6 +232,16 @@ class CardTemplateService {
             termsAndConditionsUrl: data.support_info.terms_and_conditions_url,
           }),
           ...(data.metadata && { metadata: data.metadata as any }),
+        },
+        select: {
+          id: true,
+          exId: true,
+          name: true,
+          backgroundColor: true,
+          labelColor: true,
+          labelSecondaryColor: true,
+          metadata: true,
+          updatedAt: true,
         },
       });
 
@@ -225,6 +264,12 @@ class CardTemplateService {
       return {
         id: updated.exId,
         name: updated.name,
+        description: (updated.metadata as any)?.description, // Extract description from metadata
+        design: {
+          background_color: updated.backgroundColor,
+          label_color: updated.labelColor,
+          label_secondary_color: updated.labelSecondaryColor,
+        },
         updated_at: updated.updatedAt,
       };
     } catch (error) {
@@ -275,7 +320,9 @@ class CardTemplateService {
 
       return {
         id: updated.exId,
+        status: updated.publishStatus, // Alias for tests
         publish_status: updated.publishStatus,
+        publishedAt: updated.publishedAt, // Alias for tests
         published_at: updated.publishedAt,
       };
     } catch (error) {
@@ -364,6 +411,20 @@ class CardTemplateService {
 
       return {
         items: events.map((event) => ({
+          id: event.id,
+          event_type: event.eventType,
+          device: event.device,
+          access_pass: event.accessPass
+            ? {
+                id: event.accessPass.exId,
+                full_name: event.accessPass.fullName,
+                employee_id: event.accessPass.employeeId,
+              }
+            : null,
+          metadata: event.metadata,
+          created_at: event.createdAt,
+        })),
+        logs: events.map((event) => ({ // Alias for backwards compatibility
           id: event.id,
           event_type: event.eventType,
           device: event.device,

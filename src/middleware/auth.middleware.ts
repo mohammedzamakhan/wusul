@@ -63,7 +63,8 @@ export async function authenticateRequest(
         sendUnauthorized(res, 'Missing signature payload');
         return;
       }
-      payload = Buffer.from(sigPayload).toString('base64');
+      // sig_payload is already base64 encoded from the query string
+      payload = sigPayload;
     } else if (req.method === 'POST' || req.method === 'PATCH' || req.method === 'PUT') {
       // For POST/PATCH/PUT requests, use the request body
       if (!req.body || Object.keys(req.body).length === 0) {

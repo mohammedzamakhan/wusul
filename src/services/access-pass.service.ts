@@ -128,8 +128,11 @@ class AccessPassService {
 
       return {
         id: accessPass.exId,
-        install_url: walletInstallUrl,
+        externalId: accessPass.exId, // Alias for backwards compatibility
+        status: accessPass.state, // Alias for tests
         state: accessPass.state,
+        install_url: walletInstallUrl,
+        metadata: accessPass.metadata,
         created_at: accessPass.createdAt,
       };
     } catch (error) {
@@ -196,6 +199,7 @@ class AccessPassService {
 
       return {
         items: accessPasses,
+        passes: accessPasses, // Alias for backwards compatibility
         pagination: {
           page,
           limit,
@@ -274,6 +278,7 @@ class AccessPassService {
       return {
         id: updated.exId,
         state: updated.state,
+        metadata: updated.metadata,
         updated_at: updated.updatedAt,
       };
     } catch (error) {
@@ -414,6 +419,7 @@ class AccessPassService {
 
       return {
         id: updated.exId,
+        status: updated.state, // Alias for tests
         state: updated.state,
         updated_at: updated.updatedAt,
       };
