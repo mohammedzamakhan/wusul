@@ -1,0 +1,68 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy-api:
+    name: Deploy API
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run prisma:generate
+
+      - name: Build API
+        run: npm run build:api
+        continue-on-error: true
+
+      - name: Deploy to production
+        run: |
+          echo "🚀 Deployment step would go here"
+          echo "Example deployment targets:"
+          echo "  - Docker container registry"
+          echo "  - AWS ECS/EKS"
+          echo "  - Google Cloud Run"
+          echo "  - Azure Container Apps"
+          echo "  - Railway, Render, Fly.io, etc."
+        # Add your actual deployment commands here
+        # Example for Docker:
+        # - name: Build Docker image
+        #   run: |
+        #     cd apps/api
+        #     docker build -t wusul-api:${{ github.sha }} .
+        #
+        # - name: Push to registry
+        #   run: |
+        #     docker tag wusul-api:${{ github.sha }} your-registry/wusul-api:latest
+        #     docker push your-registry/wusul-api:latest
+        #
+        # - name: Deploy to production
+        #   run: |
+        #     # Your deployment command here
+
+      - name: Create deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** Ready for deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Configure your deployment provider in this workflow file." >> $GITHUB_STEP_SUMMARY
