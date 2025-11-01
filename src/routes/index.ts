@@ -1,0 +1,45 @@
+import { Router } from 'express';
+import accessPassRoutes from './access-pass.routes';
+import cardTemplateRoutes from './card-template.routes';
+
+const router = Router();
+
+/**
+ * Health check endpoint
+ */
+router.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      status: 'healthy',
+      service: 'Wusul API',
+      version: '1.0.0',
+      region: 'MENA',
+      timestamp: new Date().toISOString(),
+    },
+  });
+});
+
+/**
+ * API v1 routes
+ */
+router.use('/v1/access-passes', accessPassRoutes);
+router.use('/v1/console/card-templates', cardTemplateRoutes);
+
+/**
+ * Welcome route
+ */
+router.get('/', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      message: 'Welcome to Wusul API - Digital Access Control for MENA Region',
+      message_ar: 'مرحباً بك في واجهة برمجة التطبيقات وصول - التحكم في الوصول الرقمي لمنطقة الشرق الأوسط وشمال إفريقيا',
+      version: '1.0.0',
+      documentation: '/docs',
+      health: '/health',
+    },
+  });
+});
+
+export default router;

@@ -1,0 +1,306 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// API Account for authentication
+model Account {
+  id            String   @id @default(cuid())
+  accountId     String   @unique @map("account_id")
+  sharedSecret  String   @map("shared_secret")
+  name          String
+  email         String   @unique
+  isActive      Boolean  @default(true) @map("is_active")
+  tier          Tier     @default(STARTER)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  cardTemplates CardTemplate[]
+  webhooks      Webhook[]
+  apiKeys       ApiKey[]
+
+  @@map("accounts")
+}
+
+model ApiKey {
+  id          String   @id @default(cuid())
+  accountId   String   @map("account_id")
+  key         String   @unique
+  name        String
+  isActive    Boolean  @default(true) @map("is_active")
+  lastUsedAt  DateTime? @map("last_used_at")
+  expiresAt   DateTime? @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+// Card Template (Pass Template)
+model CardTemplate {
+  id                      String   @id @default(cuid())
+  exId                    String   @unique @map("ex_id") // External ID shown to customers
+  accountId               String   @map("account_id")
+  name                    String
+  platform                Platform
+  useCase                 UseCase  @map("use_case")
+  protocol                Protocol
+  allowOnMultipleDevices  Boolean  @default(false) @map("allow_on_multiple_devices")
+  watchCount              Int?     @map("watch_count")
+  iphoneCount             Int?     @map("iphone_count")
+
+  // Design
+  backgroundColor         String?  @map("background_color")
+  labelColor              String?  @map("label_color")
+  labelSecondaryColor     String?  @map("label_secondary_color")
+  backgroundImage         String?  @map("background_image") // Base64 or URL
+  logoImage               String?  @map("logo_image")
+  iconImage               String?  @map("icon_image")
+
+  // Support Info
+  supportUrl              String?  @map("support_url")
+  supportPhoneNumber      String?  @map("support_phone_number")
+  supportEmail            String?  @map("support_email")
+  privacyPolicyUrl        String?  @map("privacy_policy_url")
+  termsAndConditionsUrl   String?  @map("terms_and_conditions_url")
+
+  // Status
+  publishStatus           PublishStatus @default(DRAFT) @map("publish_status")
+  publishedAt             DateTime? @map("published_at")
+
+  // Metadata
+  metadata                Json?
+
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  account                 Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accessPasses            AccessPass[]
+  eventLogs               EventLog[]
+  credentialProfiles      CredentialProfile[]
+
+  @@index([accountId])
+  @@map("card_templates")
+}
+
+// Access Pass (Digital Key)
+model AccessPass {
+  id                      String   @id @default(cuid())
+  exId                    String   @unique @map("ex_id") // External ID shown to customers
+  cardTemplateId          String   @map("card_template_id")
+
+  // Employee/User Info
+  employeeId              String?  @map("employee_id")
+  fullName                String   @map("full_name")
+  email                   String?
+  phoneNumber             String?  @map("phone_number")
+  classification          String?  // full_time, contractor, etc.
+  title                   String?
+  employeePhoto           String?  @map("employee_photo") // Base64
+
+  // Access Control Data
+  tagId                   String?  @map("tag_id") // 14 hex chars for key diversification
+  siteCode                String?  @map("site_code")
+  cardNumber              String?  @map("card_number")
+  fileData                String?  @map("file_data") // Proprietary hex data
+
+  // Validity
+  startDate               DateTime @map("start_date")
+  expirationDate          DateTime @map("expiration_date")
+
+  // Hotel-specific fields
+  memberId                String?  @map("member_id")
+  membershipStatus        String?  @map("membership_status")
+  isPassReadyToTransact   Boolean? @map("is_pass_ready_to_transact")
+  tileData                Json?    @map("tile_data")
+  reservations            Json?
+
+  // State
+  state                   PassState @default(PENDING)
+
+  // Device Info
+  devices                 Json?    // Array of device info
+
+  // Metadata
+  metadata                Json?
+
+  // Installation tracking
+  installUrl              String?  @map("install_url")
+  installedAt             DateTime? @map("installed_at")
+  lastUsedAt              DateTime? @map("last_used_at")
+
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  cardTemplate            CardTemplate @relation(fields: [cardTemplateId], references: [id], onDelete: Cascade)
+  eventLogs               EventLog[]
+
+  @@index([cardTemplateId])
+  @@index([employeeId])
+  @@index([state])
+  @@map("access_passes")
+}
+
+// Credential Profile for NFC
+model CredentialProfile {
+  id                String   @id @default(cuid())
+  exId              String   @unique @map("ex_id")
+  cardTemplateId    String   @map("card_template_id")
+  protocol          Protocol
+
+  // DESFire specific
+  desfireAppId      String?  @map("desfire_app_id")
+  desfireFileId     String?  @map("desfire_file_id")
+  desfireKey        String?  @map("desfire_key")
+
+  // Seos specific
+  seosEndpoint      String?  @map("seos_endpoint")
+  seosCredentialId  String?  @map("seos_credential_id")
+
+  // Smart Tap specific (Google)
+  smartTapIssuer    String?  @map("smart_tap_issuer")
+  smartTapClass     String?  @map("smart_tap_class")
+
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  cardTemplate      CardTemplate @relation(fields: [cardTemplateId], references: [id], onDelete: Cascade)
+
+  @@index([cardTemplateId])
+  @@map("credential_profiles")
+}
+
+// Webhook Configuration
+model Webhook {
+  id          String   @id @default(cuid())
+  accountId   String   @map("account_id")
+  url         String
+  events      String[] // Array of event types to listen to
+  isActive    Boolean  @default(true) @map("is_active")
+  secret      String   // Bearer token for authentication
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  deliveries  WebhookDelivery[]
+
+  @@index([accountId])
+  @@map("webhooks")
+}
+
+// Webhook Delivery Tracking
+model WebhookDelivery {
+  id              String   @id @default(cuid())
+  webhookId       String   @map("webhook_id")
+  eventType       String   @map("event_type")
+  payload         Json
+  responseStatus  Int?     @map("response_status")
+  responseBody    String?  @map("response_body")
+  attempts        Int      @default(0)
+  lastAttemptAt   DateTime? @map("last_attempt_at")
+  deliveredAt     DateTime? @map("delivered_at")
+  failedAt        DateTime? @map("failed_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  webhook         Webhook  @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId])
+  @@index([eventType])
+  @@map("webhook_deliveries")
+}
+
+// Event Log for audit trail
+model EventLog {
+  id              String   @id @default(cuid())
+  cardTemplateId  String?  @map("card_template_id")
+  accessPassId    String?  @map("access_pass_id")
+  eventType       EventType @map("event_type")
+  device          String?  // mobile or watch
+  metadata        Json?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  cardTemplate    CardTemplate? @relation(fields: [cardTemplateId], references: [id], onDelete: SetNull)
+  accessPass      AccessPass? @relation(fields: [accessPassId], references: [id], onDelete: SetNull)
+
+  @@index([cardTemplateId])
+  @@index([accessPassId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("event_logs")
+}
+
+// Enums
+enum Tier {
+  STARTER
+  BUSINESS
+  ENTERPRISE
+}
+
+enum Platform {
+  APPLE
+  GOOGLE
+}
+
+enum UseCase {
+  EMPLOYEE_BADGE
+  HOTEL
+  RESIDENTIAL
+  VEHICLE
+}
+
+enum Protocol {
+  DESFIRE
+  SEOS
+  SMART_TAP
+}
+
+enum PublishStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+}
+
+enum PassState {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  UNLINKED
+  DELETED
+  EXPIRED
+}
+
+enum EventType {
+  // Access Pass Events
+  ACCESS_PASS_ISSUED
+  ACCESS_PASS_ACTIVATED
+  ACCESS_PASS_UPDATED
+  ACCESS_PASS_SUSPENDED
+  ACCESS_PASS_RESUMED
+  ACCESS_PASS_UNLINKED
+  ACCESS_PASS_DELETED
+  ACCESS_PASS_EXPIRED
+
+  // Card Template Events
+  CARD_TEMPLATE_CREATED
+  CARD_TEMPLATE_UPDATED
+  CARD_TEMPLATE_REQUESTED_PUBLISHING
+  CARD_TEMPLATE_PUBLISHED
+
+  // Landing Page Events (future)
+  LANDING_PAGE_CREATED
+  LANDING_PAGE_UPDATED
+  LANDING_PAGE_ATTACHED_TO_TEMPLATE
+
+  // Credential Profile Events
+  CREDENTIAL_PROFILE_CREATED
+  CREDENTIAL_PROFILE_ATTACHED_TO_TEMPLATE
+}

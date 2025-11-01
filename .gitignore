@@ -1,0 +1,71 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Prisma
+prisma/migrations/*
+!prisma/migrations/.gitkeep
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database
+*.sqlite
+*.db
+
+# Docker volumes
+postgres_data/
+redis_data/
+pgadmin_data/
+
+# Certificates (never commit these!)
+*.pem
+*.key
+*.cert
+*.crt
+certificates/
+
+# Secrets
+secrets/
+credentials/
