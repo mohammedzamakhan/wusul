@@ -266,6 +266,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nx-
 
+      - name: Generate Prisma Client
+        run: npm run prisma:generate
+
       - name: Fetch base branch
         run: git fetch origin ${{ github.base_ref }}
 
