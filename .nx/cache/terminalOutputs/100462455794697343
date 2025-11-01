@@ -1,0 +1,8 @@
+Compiling TypeScript files for project "node-sdk"...
+[1m[31m[96mpackages/node-sdk/src/http-client.ts[0m:[93m1[0m:[93m32[0m - [91merror[0m[90m TS6133: [0m'AxiosRequestConfig' is declared but its value is never read.[39m[22m
+[1m[31m[39m[22m
+[1m[31m[7m1[0m import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';[39m[22m
+[1m[31m[7m [0m [91m                               ~~~~~~~~~~~~~~~~~~[0m[39m[22m
+[1m[31m[39m[22m
+
+[2m../../dist/packages/node-sdk/README.md[22m
