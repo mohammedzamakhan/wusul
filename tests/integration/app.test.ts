@@ -14,8 +14,8 @@ describe('App Basic Integration Tests', () => {
 
       expect(response.body).toHaveProperty('success', true);
       expect(response.body.data).toHaveProperty('message');
-      expect(response.body.data).toHaveProperty('service');
-      expect(response.body.data.service).toContain('Wusul');
+      expect(response.body.data).toHaveProperty('version');
+      expect(response.body.data.message).toContain('Wusul');
     });
   });
 

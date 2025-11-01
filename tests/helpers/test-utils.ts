@@ -68,12 +68,13 @@ export function generateAuthHeadersForGet(
 
 /**
  * Create a test card template
+ * @param accountInternalId - The internal UUID of the account (account.id), not the external accountId
  */
-export async function createTestCardTemplate(accountId: string) {
+export async function createTestCardTemplate(accountInternalId: string) {
   const cardTemplate = await prisma.cardTemplate.create({
     data: {
       exId: `0xtest${Math.random().toString(36).substring(7)}`,
-      accountId,
+      accountId: accountInternalId,
       name: 'Test Card Template',
       platform: Platform.APPLE,
       useCase: UseCase.EMPLOYEE_BADGE,
@@ -172,10 +173,30 @@ export async function cleanupTestAccount(accountId: string) {
     },
   });
 
-  // Delete event logs
-  await prisma.eventLog.deleteMany({
+  // Delete event logs (EventLog doesn't have accountId, it relates through cardTemplate)
+  // First get all card template IDs for this account
+  const cardTemplates = await prisma.cardTemplate.findMany({
     where: { accountId: account.id },
+    select: { id: true },
   });
+
+  const cardTemplateIds = cardTemplates.map(ct => ct.id);
+
+  // Delete event logs related to these card templates
+  if (cardTemplateIds.length > 0) {
+    await prisma.eventLog.deleteMany({
+      where: {
+        OR: [
+          { cardTemplateId: { in: cardTemplateIds } },
+          {
+            accessPass: {
+              cardTemplateId: { in: cardTemplateIds }
+            }
+          }
+        ]
+      },
+    });
+  }
 
   // Delete card templates
   await prisma.cardTemplate.deleteMany({
@@ -200,12 +221,13 @@ export async function cleanupTestAccount(accountId: string) {
 
 /**
  * Create a published card template for wallet testing
+ * @param accountInternalId - The internal UUID of the account (account.id), not the external accountId
  */
-export async function createPublishedCardTemplate(accountId: string) {
+export async function createPublishedCardTemplate(accountInternalId: string) {
   const cardTemplate = await prisma.cardTemplate.create({
     data: {
       exId: `0xtest${Math.random().toString(36).substring(7)}`,
-      accountId,
+      accountId: accountInternalId,
       name: 'Test Published Card',
       platform: Platform.APPLE,
       useCase: UseCase.EMPLOYEE_BADGE,

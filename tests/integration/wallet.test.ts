@@ -21,11 +21,11 @@ describe('Wallet API Integration Tests', () => {
     testAccount = await createTestAccount('STARTER');
 
     // Create a published card template
-    publishedTemplate = await createPublishedCardTemplate(testAccount.account.accountId);
+    publishedTemplate = await createPublishedCardTemplate(testAccount.account.id);
 
     // Create an active access pass
     activeAccessPass = await createTestAccessPass(
-      testAccount.account.accountId,
+      testAccount.account.id,
       publishedTemplate.id,
       {
         externalUserId: 'wallet-test-user',

@@ -18,10 +18,10 @@ describe('Access Pass API Integration Tests', () => {
   let testCardTemplate: any;
 
   beforeAll(async () => {
-    // Create test account with STANDARD tier
+    // Create test account with STARTER tier
     testAccount = await createTestAccount('STARTER');
     // Create a published card template for access pass testing
-    testCardTemplate = await createPublishedCardTemplate(testAccount.account.accountId);
+    testCardTemplate = await createPublishedCardTemplate(testAccount.account.id);
   });
 
   afterAll(async () => {

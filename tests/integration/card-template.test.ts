@@ -154,7 +154,7 @@ describe('Card Template API Integration Tests', () => {
 
     beforeAll(async () => {
       // Create a card template for reading tests
-      testTemplate = await createTestCardTemplate(enterpriseAccount.account.accountId);
+      testTemplate = await createTestCardTemplate(enterpriseAccount.account.id);
     });
 
     it('should retrieve a card template by ID', async () => {
@@ -209,7 +209,7 @@ describe('Card Template API Integration Tests', () => {
     let templateToUpdate: any;
 
     beforeAll(async () => {
-      templateToUpdate = await createTestCardTemplate(enterpriseAccount.account.accountId);
+      templateToUpdate = await createTestCardTemplate(enterpriseAccount.account.id);
     });
 
     it('should update a card template with valid data', async () => {
@@ -290,7 +290,7 @@ describe('Card Template API Integration Tests', () => {
     let templateToPublish: any;
 
     beforeAll(async () => {
-      templateToPublish = await createTestCardTemplate(enterpriseAccount.account.accountId);
+      templateToPublish = await createTestCardTemplate(enterpriseAccount.account.id);
     });
 
     it('should publish a draft card template', async () => {
@@ -353,7 +353,7 @@ describe('Card Template API Integration Tests', () => {
     let templateWithLogs: any;
 
     beforeAll(async () => {
-      templateWithLogs = await createTestCardTemplate(enterpriseAccount.account.accountId);
+      templateWithLogs = await createTestCardTemplate(enterpriseAccount.account.id);
     });
 
     it('should retrieve event logs for a card template', async () => {
