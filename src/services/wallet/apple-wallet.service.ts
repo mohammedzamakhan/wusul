@@ -112,7 +112,7 @@ export class AppleWalletService {
 
       return passBuffer;
     } catch (error) {
-      logger.error('Failed to generate Apple Wallet pass', error);
+      logger.error({ error }, 'Failed to generate Apple Wallet pass');
       throw error;
     }
   }
@@ -249,7 +249,7 @@ export class AppleWalletService {
 
       return await this.generatePass(accessPass.id);
     } catch (error) {
-      logger.error('Failed to get pass for web service', error);
+      logger.error({ error }, 'Failed to get pass for web service');
       return null;
     }
   }

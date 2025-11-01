@@ -1,10 +1,6 @@
 import { z } from 'zod';
 
 // Helper schemas
-const hexStringSchema = z
-  .string()
-  .regex(/^[0-9A-Fa-f]+$/, 'Must be a valid hexadecimal string');
-
 const tagIdSchema = z
   .string()
   .length(14, 'Tag ID must be exactly 14 characters (7 bytes)')

@@ -1,6 +1,5 @@
 import { google } from 'googleapis';
 import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import path from 'path';
 import logger from '../../config/logger';
@@ -69,7 +68,7 @@ export class GoogleWalletService {
 
       return saveUrl;
     } catch (error) {
-      logger.error('Failed to generate Google Wallet pass', error);
+      logger.error({ error }, 'Failed to generate Google Wallet pass');
       throw error;
     }
   }
@@ -177,7 +176,7 @@ export class GoogleWalletService {
 
       return classId;
     } catch (error) {
-      logger.error('Failed to create/update Google Wallet pass class', error);
+      logger.error({ error }, 'Failed to create/update Google Wallet pass class');
       throw error;
     }
   }
@@ -279,7 +278,7 @@ export class GoogleWalletService {
         }
       }
     } catch (error) {
-      logger.error('Failed to create/update Google Wallet pass object', error);
+      logger.error({ error }, 'Failed to create/update Google Wallet pass object');
       throw error;
     }
   }

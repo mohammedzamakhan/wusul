@@ -2,7 +2,7 @@ import { Request } from 'express';
 import { TFunction } from 'i18next';
 
 // Extend Express Request to include authenticated account and i18n
-export interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Omit<Request, 'language' | 't'> {
   account?: {
     id: string;
     accountId: string;

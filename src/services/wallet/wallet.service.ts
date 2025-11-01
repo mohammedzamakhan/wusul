@@ -66,7 +66,7 @@ export class WalletService {
         throw new Error(`Unsupported platform: ${platform}`);
       }
     } catch (error) {
-      logger.error('Failed to generate wallet pass', error);
+      logger.error({ error }, 'Failed to generate wallet pass');
       throw error;
     }
   }
@@ -97,7 +97,7 @@ export class WalletService {
         logger.info(`Google Wallet pass updated for access pass ${accessPass.exId}`);
       }
     } catch (error) {
-      logger.error('Failed to update wallet pass', error);
+      logger.error({ error }, 'Failed to update wallet pass');
       throw error;
     }
   }

@@ -35,7 +35,7 @@ export class SMSService {
 
       logger.info('SMS service initialized successfully');
     } catch (error) {
-      logger.error('Failed to initialize SMS service', error);
+      logger.error({ error }, 'Failed to initialize SMS service');
       this.isConfigured = false;
     }
   }
@@ -65,7 +65,7 @@ export class SMSService {
       logger.info(`Access pass issued SMS sent to ${phoneNumber}`);
       return true;
     } catch (error) {
-      logger.error(`Failed to send access pass issued SMS to ${phoneNumber}`, error);
+      logger.error({ error }, `Failed to send access pass issued SMS to ${phoneNumber}`);
       return false;
     }
   }
@@ -94,7 +94,7 @@ export class SMSService {
       logger.info(`Access pass suspended SMS sent to ${phoneNumber}`);
       return true;
     } catch (error) {
-      logger.error(`Failed to send access pass suspended SMS to ${phoneNumber}`, error);
+      logger.error({ error }, `Failed to send access pass suspended SMS to ${phoneNumber}`);
       return false;
     }
   }
@@ -123,7 +123,7 @@ export class SMSService {
       logger.info(`Access pass resumed SMS sent to ${phoneNumber}`);
       return true;
     } catch (error) {
-      logger.error(`Failed to send access pass resumed SMS to ${phoneNumber}`, error);
+      logger.error({ error }, `Failed to send access pass resumed SMS to ${phoneNumber}`);
       return false;
     }
   }
@@ -152,7 +152,7 @@ export class SMSService {
       logger.info(`Access pass expiring soon SMS sent to ${phoneNumber}`);
       return true;
     } catch (error) {
-      logger.error(`Failed to send access pass expiring soon SMS to ${phoneNumber}`, error);
+      logger.error({ error }, `Failed to send access pass expiring soon SMS to ${phoneNumber}`);
       return false;
     }
   }

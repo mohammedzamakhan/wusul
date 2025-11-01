@@ -26,9 +26,15 @@ redis.on('close', () => {
 });
 
 // Handle graceful shutdown
-process.on('beforeExit', async () => {
-  await redis.quit();
-  logger.info('Redis connection closed');
-});
+// Note: Only attach this handler in non-test environments
+// Tests handle cleanup explicitly in their teardown hooks
+if (process.env.NODE_ENV !== 'test') {
+  process.on('beforeExit', async () => {
+    if (redis.status === 'ready' || redis.status === 'connect' || redis.status === 'connecting') {
+      await redis.quit();
+      logger.info('Redis connection closed');
+    }
+  });
+}
 
 export default redis;
