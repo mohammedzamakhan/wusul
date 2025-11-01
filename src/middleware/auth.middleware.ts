@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../types';
 import { verifyPayloadSignature, encodePayload } from '../utils/auth';
 import { sendUnauthorized } from '../utils/response';

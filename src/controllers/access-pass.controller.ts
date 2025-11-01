@@ -1,13 +1,12 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../types';
 import { accessPassService } from '../services/access-pass.service';
-import { sendSuccess, sendError } from '../utils/response';
+import { sendSuccess } from '../utils/response';
 import {
   issueAccessPassSchema,
   updateAccessPassSchema,
   listAccessPassesSchema,
 } from '../validators/access-pass.validator';
-import logger from '../config/logger';
 
 class AccessPassController {
   /**

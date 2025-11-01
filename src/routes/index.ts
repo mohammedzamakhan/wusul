@@ -8,7 +8,7 @@ const router = Router();
 /**
  * Health check endpoint
  */
-router.get('/health', (req, res) => {
+router.get('/health', (_req, res) => {
   res.json({
     success: true,
     data: {
@@ -31,7 +31,7 @@ router.use('/v1/wallet', walletRoutes);
 /**
  * Welcome route
  */
-router.get('/', (req, res) => {
+router.get('/', (_req, res) => {
   res.json({
     success: true,
     data: {

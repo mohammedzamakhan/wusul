@@ -29,6 +29,7 @@ class EventLogService {
     } catch (error) {
       logger.error({ error, eventType }, 'Failed to log event');
       // Don't throw - we don't want to fail the main operation if logging fails
+      return undefined;
     }
   }
 

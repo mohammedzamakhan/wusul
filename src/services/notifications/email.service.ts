@@ -43,7 +43,7 @@ export class EmailService {
       this.isConfigured = true;
       logger.info('Email service initialized successfully');
     } catch (error) {
-      logger.error('Failed to initialize email service', error);
+      logger.error({ error }, 'Failed to initialize email service');
       this.isConfigured = false;
     }
   }
@@ -88,7 +88,7 @@ export class EmailService {
       logger.info(`Access pass issued email sent to ${email}`);
       return true;
     } catch (error) {
-      logger.error(`Failed to send access pass issued email to ${email}`, error);
+      logger.error({ error }, `Failed to send access pass issued email to ${email}`);
       return false;
     }
   }
@@ -130,7 +130,7 @@ export class EmailService {
       logger.info(`Access pass suspended email sent to ${email}`);
       return true;
     } catch (error) {
-      logger.error(`Failed to send access pass suspended email to ${email}`, error);
+      logger.error({ error }, `Failed to send access pass suspended email to ${email}`);
       return false;
     }
   }
@@ -171,7 +171,7 @@ export class EmailService {
       logger.info(`Access pass resumed email sent to ${email}`);
       return true;
     } catch (error) {
-      logger.error(`Failed to send access pass resumed email to ${email}`, error);
+      logger.error({ error }, `Failed to send access pass resumed email to ${email}`);
       return false;
     }
   }
@@ -214,7 +214,7 @@ export class EmailService {
       logger.info(`Access pass expiring soon email sent to ${email}`);
       return true;
     } catch (error) {
-      logger.error(`Failed to send access pass expiring soon email to ${email}`, error);
+      logger.error({ error }, `Failed to send access pass expiring soon email to ${email}`);
       return false;
     }
   }

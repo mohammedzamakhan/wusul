@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authMiddleware } from '../middleware/auth.middleware';
+import { authenticateRequest } from '../middleware/auth.middleware';
 import * as walletController from '../controllers/wallet.controller';
 
 const router = Router();
@@ -9,7 +9,7 @@ const router = Router();
  * @desc    Generate and download wallet pass (Apple) or get install URL (Google)
  * @access  Authenticated
  */
-router.get('/passes/:accessPassId', authMiddleware, walletController.generateWalletPass);
+router.get('/passes/:accessPassId', authenticateRequest, walletController.generateWalletPass);
 
 /**
  * Apple Wallet Web Service endpoints

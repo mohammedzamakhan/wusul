@@ -3,7 +3,7 @@ import { PassState, EventType } from '@prisma/client';
 import { generateExternalId } from '../utils/auth';
 import { AppError } from '../middleware/error.middleware';
 import logger from '../config/logger';
-import { nanoid } from 'nanoid';
+
 import {
   IssueAccessPassInput,
   UpdateAccessPassInput,

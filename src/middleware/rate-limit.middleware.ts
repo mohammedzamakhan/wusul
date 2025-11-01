@@ -1,5 +1,5 @@
 import rateLimit from 'express-rate-limit';
-import config from '../config/logger';
+
 
 /**
  * General API rate limiter
