@@ -32,37 +32,20 @@ describe('Card Template API Integration Tests', () => {
     it('should create a new card template with ENTERPRISE tier', async () => {
       const payload = {
         name: 'Test Access Card',
-        description: 'Test card template for integration testing',
-        type: 'ACCESS_CARD',
+        platform: 'APPLE',
+        use_case: 'EMPLOYEE_BADGE',
+        protocol: 'DESFIRE',
+        allow_on_multiple_devices: false,
         design: {
-          backgroundColor: '#1a73e8',
-          foregroundColor: '#FFFFFF',
-          labelColor: '#CCCCCC',
-          logoText: 'Test Company',
+          background_color: '#1a73e8',
+          label_color: '#FFFFFF',
+          label_secondary_color: '#CCCCCC',
         },
-        fields: {
-          primaryFields: [
-            {
-              key: 'member',
-              label: 'Member',
-              value: 'John Doe',
-            },
-          ],
-          secondaryFields: [
-            {
-              key: 'id',
-              label: 'ID',
-              value: '12345',
-            },
-          ],
-          auxiliaryFields: [],
-          backFields: [
-            {
-              key: 'terms',
-              label: 'Terms & Conditions',
-              value: 'This is a test card',
-            },
-          ],
+        support_info: {
+          support_email: 'support@example.com',
+        },
+        metadata: {
+          description: 'Test card template for integration testing',
         },
       };
 
@@ -91,8 +74,9 @@ describe('Card Template API Integration Tests', () => {
     it('should fail without ENTERPRISE tier', async () => {
       const payload = {
         name: 'Should Fail',
-        description: 'This should fail',
-        type: 'ACCESS_CARD',
+        platform: 'APPLE',
+        use_case: 'EMPLOYEE_BADGE',
+        protocol: 'DESFIRE',
       };
 
       const headers = generateAuthHeaders(
@@ -114,8 +98,9 @@ describe('Card Template API Integration Tests', () => {
     it('should fail without authentication', async () => {
       const payload = {
         name: 'Test Card',
-        description: 'Test',
-        type: 'ACCESS_CARD',
+        platform: 'APPLE',
+        use_case: 'EMPLOYEE_BADGE',
+        protocol: 'DESFIRE',
       };
 
       const response = await request(app)

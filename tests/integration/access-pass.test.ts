@@ -31,12 +31,23 @@ describe('Access Pass API Integration Tests', () => {
 
   describe('POST /v1/access-passes - Issue Access Pass', () => {
     it('should issue a new access pass with valid authentication', async () => {
+      const now = new Date().toISOString();
+      const oneYearLater = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+
       const payload = {
-        cardTemplateId: testCardTemplate.id,
-        externalUserId: 'user123',
+        card_template_id: testCardTemplate.id,
+        full_name: 'John Doe',
+        email: 'john@example.com',
+        phone_number: '+1234567890',
+        employee_id: 'EMP123',
+        classification: 'full_time',
+        title: 'Software Engineer',
+        start_date: now,
+        expiration_date: oneYearLater,
+        site_code: '100',
+        card_number: '12345',
         metadata: {
-          name: 'John Doe',
-          email: 'john@example.com',
+          department: 'Engineering',
         },
       };
 
@@ -61,9 +72,16 @@ describe('Access Pass API Integration Tests', () => {
     });
 
     it('should fail without authentication headers', async () => {
+      const now = new Date().toISOString();
+      const oneYearLater = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+
       const payload = {
-        cardTemplateId: testCardTemplate.id,
-        externalUserId: 'user456',
+        card_template_id: testCardTemplate.id,
+        full_name: 'Jane Doe',
+        start_date: now,
+        expiration_date: oneYearLater,
+        site_code: '100',
+        card_number: '12346',
       };
 
       const response = await request(app)
@@ -76,9 +94,16 @@ describe('Access Pass API Integration Tests', () => {
     });
 
     it('should fail with invalid signature', async () => {
+      const now = new Date().toISOString();
+      const oneYearLater = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+
       const payload = {
-        cardTemplateId: testCardTemplate.id,
-        externalUserId: 'user789',
+        card_template_id: testCardTemplate.id,
+        full_name: 'Invalid User',
+        start_date: now,
+        expiration_date: oneYearLater,
+        site_code: '100',
+        card_number: '12347',
       };
 
       const response = await request(app)
@@ -95,9 +120,16 @@ describe('Access Pass API Integration Tests', () => {
     });
 
     it('should fail with invalid card template ID', async () => {
+      const now = new Date().toISOString();
+      const oneYearLater = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+
       const payload = {
-        cardTemplateId: 'invalid-template-id',
-        externalUserId: 'user999',
+        card_template_id: 'invalid-template-id',
+        full_name: 'Test User',
+        start_date: now,
+        expiration_date: oneYearLater,
+        site_code: '100',
+        card_number: '12348',
       };
 
       const headers = generateAuthHeaders(
@@ -122,18 +154,14 @@ describe('Access Pass API Integration Tests', () => {
     beforeAll(async () => {
       // Create an access pass for listing tests
       createdAccessPass = await createTestAccessPass(
-        testAccount.account.accountId,
-        testCardTemplate.id,
-        {
-          externalUserId: 'list-test-user',
-          metadata: { name: 'List Test User' },
-        }
+        testAccount.account.id,
+        testCardTemplate.id
       );
     });
 
     it('should list access passes for a card template', async () => {
       const sigPayload = {
-        cardTemplateId: testCardTemplate.id,
+        template_id: testCardTemplate.id,
         limit: 10,
         offset: 0,
       };
@@ -149,7 +177,7 @@ describe('Access Pass API Integration Tests', () => {
         .set(headers)
         .query({
           ...query,
-          cardTemplateId: testCardTemplate.id,
+          template_id: testCardTemplate.id,
           limit: 10,
           offset: 0,
         })
@@ -165,7 +193,7 @@ describe('Access Pass API Integration Tests', () => {
     it('should fail without authentication', async () => {
       const response = await request(app)
         .get('/v1/access-passes')
-        .query({ cardTemplateId: testCardTemplate.id })
+        .query({ template_id: testCardTemplate.id })
         .expect('Content-Type', /json/)
         .expect(401);
 
@@ -178,12 +206,8 @@ describe('Access Pass API Integration Tests', () => {
 
     beforeAll(async () => {
       accessPassToUpdate = await createTestAccessPass(
-        testAccount.account.accountId,
-        testCardTemplate.id,
-        {
-          externalUserId: 'update-test-user',
-          metadata: { name: 'Update Test User', version: 1 },
-        }
+        testAccount.account.id,
+        testCardTemplate.id
       );
     });
 
