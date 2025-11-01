@@ -6,6 +6,7 @@ import config from './config';
 import logger from './config/logger';
 import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
+import { i18nextMiddleware } from './config/i18n';
 
 /**
  * Create and configure Express application
@@ -39,6 +40,9 @@ function createApp(): Application {
 
   // Trust proxy (for rate limiting, etc.)
   app.set('trust proxy', 1);
+
+  // i18n middleware
+  app.use(i18nextMiddleware);
 
   // API routes
   app.use('/', routes);

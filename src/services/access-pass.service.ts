@@ -11,6 +11,8 @@ import {
 import { eventLogService } from './event-log.service';
 import { webhookService } from './webhook.service';
 import { WebhookEventType } from '../types';
+import walletService from './wallet/wallet.service';
+import notificationService from './notifications/notification.service';
 
 class AccessPassService {
   /**
@@ -92,6 +94,33 @@ class AccessPassService {
         }
       );
 
+      // Generate wallet pass
+      let walletInstallUrl = installUrl;
+      try {
+        const walletResult = await walletService.generateWalletPass(accessPass.id);
+        walletInstallUrl = walletResult.installUrl || installUrl;
+      } catch (error) {
+        logger.warn({ error, accessPassId: accessPass.exId }, 'Failed to generate wallet pass');
+      }
+
+      // Send notifications (email and SMS)
+      if (accessPass.email || accessPass.phoneNumber) {
+        try {
+          await notificationService.notifyAccessPassIssued({
+            email: accessPass.email || undefined,
+            phoneNumber: accessPass.phoneNumber || undefined,
+            fullName: accessPass.fullName,
+            accessPassId: accessPass.exId,
+            installUrl: walletInstallUrl,
+            startDate: accessPass.startDate.toISOString().split('T')[0],
+            expirationDate: accessPass.expirationDate.toISOString().split('T')[0],
+            language: 'en', // TODO: Get from user preferences
+          });
+        } catch (error) {
+          logger.warn({ error, accessPassId: accessPass.exId }, 'Failed to send notifications');
+        }
+      }
+
       logger.info(
         { accessPassId: accessPass.exId, cardTemplateId: cardTemplate.exId },
         'Access pass issued'
@@ -99,7 +128,7 @@ class AccessPassService {
 
       return {
         id: accessPass.exId,
-        install_url: installUrl,
+        install_url: walletInstallUrl,
         state: accessPass.state,
         created_at: accessPass.createdAt,
       };
@@ -348,6 +377,38 @@ class AccessPassService {
         protocol: accessPass.cardTemplate.protocol,
         metadata: updated.metadata,
       });
+
+      // Update wallet pass
+      try {
+        await walletService.updateWalletPass(accessPass.id);
+      } catch (error) {
+        logger.warn({ error, accessPassId: updated.exId }, 'Failed to update wallet pass');
+      }
+
+      // Send notifications based on state change
+      if (accessPass.email || accessPass.phoneNumber) {
+        try {
+          if (state === PassState.SUSPENDED) {
+            await notificationService.notifyAccessPassSuspended({
+              email: accessPass.email || undefined,
+              phoneNumber: accessPass.phoneNumber || undefined,
+              fullName: accessPass.fullName,
+              accessPassId: accessPass.exId,
+              language: 'en',
+            });
+          } else if (state === PassState.ACTIVE && accessPass.state === PassState.SUSPENDED) {
+            await notificationService.notifyAccessPassResumed({
+              email: accessPass.email || undefined,
+              phoneNumber: accessPass.phoneNumber || undefined,
+              fullName: accessPass.fullName,
+              accessPassId: accessPass.exId,
+              language: 'en',
+            });
+          }
+        } catch (error) {
+          logger.warn({ error, accessPassId: updated.exId }, 'Failed to send notifications');
+        }
+      }
 
       logger.info({ accessPassId: updated.exId, state }, 'Access pass state updated');
 

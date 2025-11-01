@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import accessPassRoutes from './access-pass.routes';
 import cardTemplateRoutes from './card-template.routes';
+import walletRoutes from './wallet.routes';
 
 const router = Router();
 
@@ -25,6 +26,7 @@ router.get('/health', (req, res) => {
  */
 router.use('/v1/access-passes', accessPassRoutes);
 router.use('/v1/console/card-templates', cardTemplateRoutes);
+router.use('/v1/wallet', walletRoutes);
 
 /**
  * Welcome route
