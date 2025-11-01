@@ -19,7 +19,7 @@ describe('Card Template API Integration Tests', () => {
     // Create test account with ENTERPRISE tier (required for card template operations)
     enterpriseAccount = await createTestAccount('ENTERPRISE');
     // Create test account with STANDARD tier (to test access control)
-    standardAccount = await createTestAccount('STANDARD');
+    standardAccount = await createTestAccount('BUSINESS');
   });
 
   afterAll(async () => {

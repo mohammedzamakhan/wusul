@@ -1,6 +1,6 @@
 import { beforeAll, afterAll, afterEach } from 'vitest';
 import prisma from '../src/config/database';
-import { redis } from '../src/config/redis';
+import redis from '../src/config/redis';
 
 // Setup hooks
 beforeAll(async () => {

@@ -18,7 +18,7 @@ describe('Wallet API Integration Tests', () => {
 
   beforeAll(async () => {
     // Create test account
-    testAccount = await createTestAccount('STANDARD');
+    testAccount = await createTestAccount('STARTER');
 
     // Create a published card template
     publishedTemplate = await createPublishedCardTemplate(testAccount.account.accountId);

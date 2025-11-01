@@ -13,7 +13,7 @@ describe('App Basic Integration Tests', () => {
         .expect(200);
 
       expect(response.body).toHaveProperty('success', true);
-      expect(response.body).toHaveProperty('message');
+      expect(response.body.data).toHaveProperty('message');
       expect(response.body.data).toHaveProperty('service');
       expect(response.body.data.service).toContain('Wusul');
     });
