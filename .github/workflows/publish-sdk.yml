@@ -10,20 +10,21 @@ on:
         required: false
         type: string
       sdk:
-        description: 'Which SDK to publish (node, php, or both)'
+        description: 'Which SDK to publish (node, php, java, or all)'
         required: false
         type: choice
         options:
-          - both
+          - all
           - node
           - php
-        default: 'both'
+          - java
+        default: 'all'
 
 jobs:
   publish-node-sdk:
     name: Publish Node SDK to NPM
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.sdk == 'node' || github.event.inputs.sdk == 'both' || github.event.inputs.sdk == '' }}
+    if: ${{ github.event.inputs.sdk == 'node' || github.event.inputs.sdk == 'all' || github.event.inputs.sdk == '' }}
     permissions:
       contents: read
       id-token: write
@@ -79,7 +80,7 @@ jobs:
   publish-php-sdk:
     name: Publish PHP SDK to Packagist
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.sdk == 'php' || github.event.inputs.sdk == 'both' || github.event.inputs.sdk == '' }}
+    if: ${{ github.event.inputs.sdk == 'php' || github.event.inputs.sdk == 'all' || github.event.inputs.sdk == '' }}
     permissions:
       contents: read
 
@@ -136,3 +137,65 @@ jobs:
           echo "1. Register the package at https://packagist.org/packages/submit" >> $GITHUB_STEP_SUMMARY
           echo "2. Add the GitHub webhook for automatic updates" >> $GITHUB_STEP_SUMMARY
           echo "3. Tag your releases with semantic versioning (e.g., v1.0.0)" >> $GITHUB_STEP_SUMMARY
+
+  publish-java-sdk:
+    name: Publish Java SDK to Maven Central
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.sdk == 'java' || github.event.inputs.sdk == 'all' || github.event.inputs.sdk == '' }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'maven'
+
+      - name: Build Java SDK
+        run: |
+          cd packages/java-sdk
+          mvn clean package
+
+      - name: Run Java SDK tests
+        run: |
+          cd packages/java-sdk
+          mvn test
+
+      - name: Update version (if specified)
+        if: github.event.inputs.version != ''
+        run: |
+          cd packages/java-sdk
+          mvn versions:set -DnewVersion=${{ github.event.inputs.version }}
+
+      - name: Create GitHub Release Summary
+        run: |
+          echo "## 📦 Java SDK Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Wusul Java SDK is ready for publishing to Maven Central!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Maven Installation" >> $GITHUB_STEP_SUMMARY
+          echo '```xml' >> $GITHUB_STEP_SUMMARY
+          echo "<dependency>" >> $GITHUB_STEP_SUMMARY
+          echo "    <groupId>io.wusul</groupId>" >> $GITHUB_STEP_SUMMARY
+          echo "    <artifactId>wusul-java-sdk</artifactId>" >> $GITHUB_STEP_SUMMARY
+          echo "    <version>1.0.0</version>" >> $GITHUB_STEP_SUMMARY
+          echo "</dependency>" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Gradle Installation" >> $GITHUB_STEP_SUMMARY
+          echo '```gradle' >> $GITHUB_STEP_SUMMARY
+          echo "implementation 'io.wusul:wusul-java-sdk:1.0.0'" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** Publishing to Maven Central requires additional setup." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Configure Maven Central credentials in repository secrets" >> $GITHUB_STEP_SUMMARY
+          echo "2. Sign artifacts with GPG key" >> $GITHUB_STEP_SUMMARY
+          echo "3. Deploy to Maven Central staging repository" >> $GITHUB_STEP_SUMMARY
+          echo "4. Release from staging to production" >> $GITHUB_STEP_SUMMARY

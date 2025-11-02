@@ -195,6 +195,48 @@ jobs:
           name: php-sdk-coverage
         continue-on-error: true
 
+  test-java-sdk:
+    name: Test Java SDK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'maven'
+
+      - name: Build Java SDK
+        run: |
+          cd packages/java-sdk
+          mvn clean compile
+
+      - name: Run Java SDK tests
+        run: |
+          cd packages/java-sdk
+          mvn test
+
+      - name: Generate coverage report
+        run: |
+          cd packages/java-sdk
+          mvn jacoco:report
+        continue-on-error: true
+
+      - name: Upload Java SDK coverage
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./packages/java-sdk/target/site/jacoco/jacoco.xml
+          flags: java-sdk-tests
+          name: java-sdk-coverage
+        continue-on-error: true
+
   lint:
     name: Lint & Format
     runs-on: ubuntu-latest
@@ -310,6 +352,13 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'maven'
+
       - name: Install dependencies
         run: npm ci
 
@@ -332,8 +381,7 @@ jobs:
           echo "Projects affected by this PR:"
           npx nx show projects --affected --base=origin/${{ github.base_ref }}
 
-          echo -e "\nAffected build targets:"
-          npx nx affected --target=build --base=origin/${{ github.base_ref }} --dry-run
+          echo -e "\nRunning affected tests..."
 
       - name: Run affected tests
         run: npx nx affected --target=test --base=origin/${{ github.base_ref }} --parallel=3
