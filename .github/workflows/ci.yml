@@ -539,19 +539,17 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-<<<<<<< HEAD
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
           working-directory: packages/ruby-sdk
-=======
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
->>>>>>> 874f86d (feat(csharp-sdk): Add C# SDK package with full feature parity)
 
       - name: Install dependencies
         run: npm ci
