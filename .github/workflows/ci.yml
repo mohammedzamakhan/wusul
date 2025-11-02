@@ -279,6 +279,47 @@ jobs:
           name: go-sdk-coverage
         continue-on-error: true
 
+  test-python-sdk:
+    name: Test Python SDK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python SDK dependencies
+        run: |
+          cd packages/python-sdk
+          pip install -e ".[dev]"
+
+      - name: Run Python SDK tests
+        run: |
+          cd packages/python-sdk
+          pytest --cov=wusul --cov-report=term-missing --cov-report=xml
+
+      - name: Run Python SDK type checking
+        run: |
+          cd packages/python-sdk
+          mypy wusul || true
+        continue-on-error: true
+
+      - name: Upload Python SDK coverage
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./packages/python-sdk/coverage.xml
+          flags: python-sdk-tests
+          name: python-sdk-coverage
+        continue-on-error: true
+
   lint:
     name: Lint & Format
     runs-on: ubuntu-latest
@@ -407,6 +448,12 @@ jobs:
           go-version: '1.21'
           cache-dependency-path: packages/go-sdk/go.sum
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
       - name: Install dependencies
         run: npm ci
 
@@ -420,6 +467,11 @@ jobs:
 
       - name: Generate Prisma Client
         run: npm run prisma:generate
+
+      - name: Install Python SDK dependencies
+        run: |
+          cd packages/python-sdk
+          pip install -e ".[dev]"
 
       - name: Fetch base branch
         run: git fetch origin ${{ github.base_ref }}
