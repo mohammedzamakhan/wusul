@@ -9,11 +9,21 @@ on:
         description: 'Version to publish (leave empty to use package.json version)'
         required: false
         type: string
+      sdk:
+        description: 'Which SDK to publish (node, php, or both)'
+        required: false
+        type: choice
+        options:
+          - both
+          - node
+          - php
+        default: 'both'
 
 jobs:
-  publish:
-    name: Publish to NPM
+  publish-node-sdk:
+    name: Publish Node SDK to NPM
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.sdk == 'node' || github.event.inputs.sdk == 'both' || github.event.inputs.sdk == '' }}
     permissions:
       contents: read
       id-token: write
@@ -32,10 +42,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build SDK
+      - name: Build Node SDK
         run: npm run build:sdk
 
-      - name: Run SDK tests
+      - name: Run Node SDK tests
         run: npm run test:sdk
 
       - name: Update version (if specified)
@@ -53,9 +63,9 @@ jobs:
 
       - name: Create GitHub Release Summary
         run: |
-          echo "## 📦 SDK Published" >> $GITHUB_STEP_SUMMARY
+          echo "## 📦 Node SDK Published" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "The Wusul SDK has been successfully published to NPM!" >> $GITHUB_STEP_SUMMARY
+          echo "The Wusul Node SDK has been successfully published to NPM!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Installation" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
@@ -65,3 +75,64 @@ jobs:
           PACKAGE_VERSION=$(node -p "require('./packages/node-sdk/package.json').version")
           echo "**Version:** $PACKAGE_VERSION" >> $GITHUB_STEP_SUMMARY
           echo "**Package:** [wusul](https://www.npmjs.com/package/wusul)" >> $GITHUB_STEP_SUMMARY
+
+  publish-php-sdk:
+    name: Publish PHP SDK to Packagist
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.sdk == 'php' || github.event.inputs.sdk == 'both' || github.event.inputs.sdk == '' }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: json, mbstring
+          tools: composer:v2
+
+      - name: Validate composer.json
+        run: |
+          cd packages/php-sdk
+          composer validate --strict
+
+      - name: Install PHP SDK dependencies
+        run: |
+          cd packages/php-sdk
+          composer install --prefer-dist --no-progress --no-dev --optimize-autoloader
+
+      - name: Run PHP SDK tests
+        run: |
+          cd packages/php-sdk
+          composer install --prefer-dist --no-progress
+          composer test
+
+      - name: Update version (if specified)
+        if: github.event.inputs.version != ''
+        run: |
+          cd packages/php-sdk
+          # Update version in composer.json
+          jq '.version = "${{ github.event.inputs.version }}"' composer.json > composer.json.tmp
+          mv composer.json.tmp composer.json
+
+      - name: Create GitHub Release Summary
+        run: |
+          echo "## 📦 PHP SDK Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Wusul PHP SDK is ready for publishing to Packagist!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "composer require wusul/wusul-php" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** Packagist automatically syncs from GitHub releases." >> $GITHUB_STEP_SUMMARY
+          echo "Make sure the package is registered at [Packagist.org](https://packagist.org)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Register the package at https://packagist.org/packages/submit" >> $GITHUB_STEP_SUMMARY
+          echo "2. Add the GitHub webhook for automatic updates" >> $GITHUB_STEP_SUMMARY
+          echo "3. Tag your releases with semantic versioning (e.g., v1.0.0)" >> $GITHUB_STEP_SUMMARY

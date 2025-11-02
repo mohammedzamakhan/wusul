@@ -16,6 +16,8 @@
     "test": "nx run-many --target=test --all",
     "test:api": "nx run api:test",
     "test:sdk": "nx run node-sdk:test",
+    "test:php-sdk": "nx run php-sdk:test",
+    "install:php-sdk": "nx run php-sdk:install",
     "lint": "nx run-many --target=lint --all",
     "lint:fix": "nx run-many --target=lint --all --fix",
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
