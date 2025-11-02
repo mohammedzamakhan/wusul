@@ -195,6 +195,48 @@ jobs:
           name: php-sdk-coverage
         continue-on-error: true
 
+  test-java-sdk:
+    name: Test Java SDK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'maven'
+
+      - name: Build Java SDK
+        run: |
+          cd packages/java-sdk
+          mvn clean compile
+
+      - name: Run Java SDK tests
+        run: |
+          cd packages/java-sdk
+          mvn test
+
+      - name: Generate coverage report
+        run: |
+          cd packages/java-sdk
+          mvn jacoco:report
+        continue-on-error: true
+
+      - name: Upload Java SDK coverage
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./packages/java-sdk/target/site/jacoco/jacoco.xml
+          flags: java-sdk-tests
+          name: java-sdk-coverage
+        continue-on-error: true
+
   lint:
     name: Lint & Format
     runs-on: ubuntu-latest
