@@ -10,7 +10,7 @@ on:
         required: false
         type: string
       sdk:
-        description: 'Which SDK to publish (node, php, java, go, or all)'
+        description: 'Which SDK to publish (node, php, java, go, python, ruby, or all)'
         required: false
         type: choice
         options:
@@ -19,6 +19,8 @@ on:
           - php
           - java
           - go
+          - python
+          - ruby
         default: 'all'
 
 jobs:
@@ -270,3 +272,148 @@ jobs:
           echo "1. Tag the release: \`git tag packages/go-sdk/v1.0.0\`" >> $GITHUB_STEP_SUMMARY
           echo "2. Push the tag: \`git push origin packages/go-sdk/v1.0.0\`" >> $GITHUB_STEP_SUMMARY
           echo "3. Users can then install with: \`go get github.com/mohammedzamakhan/wusul/packages/go-sdk@v1.0.0\`" >> $GITHUB_STEP_SUMMARY
+
+  publish-python-sdk:
+    name: Publish Python SDK to PyPI
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.sdk == 'python' || github.event.inputs.sdk == 'all' || github.event.inputs.sdk == '' }}
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Install Python SDK dependencies
+        run: |
+          cd packages/python-sdk
+          pip install -e ".[dev]"
+
+      - name: Run Python SDK tests
+        run: |
+          cd packages/python-sdk
+          pytest
+
+      - name: Update version (if specified)
+        if: github.event.inputs.version != ''
+        run: |
+          cd packages/python-sdk
+          # Update version in pyproject.toml
+          sed -i 's/version = "[^"]*"/version = "${{ github.event.inputs.version }}"/' pyproject.toml
+
+      - name: Build package
+        run: |
+          cd packages/python-sdk
+          python -m build
+
+      - name: Publish to PyPI
+        run: |
+          cd packages/python-sdk
+          twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+
+      - name: Create GitHub Release Summary
+        run: |
+          echo "## 📦 Python SDK Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Wusul Python SDK has been successfully published to PyPI!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "pip install wusul" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          PACKAGE_VERSION=$(python -c "import tomli; print(tomli.load(open('packages/python-sdk/pyproject.toml', 'rb'))['project']['version'])")
+          echo "**Version:** $PACKAGE_VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "**Package:** [wusul](https://pypi.org/project/wusul/)" >> $GITHUB_STEP_SUMMARY
+
+  publish-ruby-sdk:
+    name: Publish Ruby SDK to RubyGems
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.sdk == 'ruby' || github.event.inputs.sdk == 'all' || github.event.inputs.sdk == '' }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: packages/ruby-sdk
+
+      - name: Install Ruby SDK dependencies
+        run: |
+          cd packages/ruby-sdk
+          bundle install
+
+      - name: Run Ruby SDK tests
+        run: |
+          cd packages/ruby-sdk
+          bundle exec rspec
+
+      - name: Run Ruby SDK linter
+        run: |
+          cd packages/ruby-sdk
+          bundle exec rubocop
+
+      - name: Update version (if specified)
+        if: github.event.inputs.version != ''
+        run: |
+          cd packages/ruby-sdk
+          # Update version in version.rb
+          sed -i "s/VERSION = '[^']*'/VERSION = '${{ github.event.inputs.version }}'/" lib/wusul/version.rb
+
+      - name: Build gem
+        run: |
+          cd packages/ruby-sdk
+          gem build wusul.gemspec
+
+      - name: Publish to RubyGems
+        run: |
+          cd packages/ruby-sdk
+          mkdir -p ~/.gem
+          cat << EOF > ~/.gem/credentials
+          ---
+          :rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}
+          EOF
+          chmod 0600 ~/.gem/credentials
+          gem push wusul-*.gem
+        env:
+          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+
+      - name: Create GitHub Release Summary
+        run: |
+          echo "## 📦 Ruby SDK Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Wusul Ruby SDK has been successfully published to RubyGems!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "gem install wusul" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Or add to your Gemfile:" >> $GITHUB_STEP_SUMMARY
+          echo '```ruby' >> $GITHUB_STEP_SUMMARY
+          echo "gem 'wusul'" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          PACKAGE_VERSION=$(ruby -e "require './packages/ruby-sdk/lib/wusul/version'; puts Wusul::VERSION")
+          echo "**Version:** $PACKAGE_VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "**Package:** [wusul](https://rubygems.org/gems/wusul)" >> $GITHUB_STEP_SUMMARY
