@@ -362,6 +362,55 @@ jobs:
           name: ruby-sdk-coverage
         continue-on-error: true
 
+  test-csharp-sdk:
+    name: Test C# SDK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: |
+          cd packages/csharp-sdk
+          dotnet restore Wusul.csproj
+          dotnet restore Wusul.Tests.csproj
+
+      - name: Build C# SDK
+        run: |
+          cd packages/csharp-sdk
+          dotnet build Wusul.csproj --configuration Release --no-restore
+
+      - name: Run C# SDK tests
+        run: |
+          cd packages/csharp-sdk
+          dotnet test Wusul.Tests.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
+
+      - name: Upload C# SDK test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: csharp-sdk-test-results
+          path: packages/csharp-sdk/TestResults/**/*.trx
+          retention-days: 7
+        continue-on-error: true
+
+      - name: Upload C# SDK coverage
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: packages/csharp-sdk/TestResults/**/coverage.cobertura.xml
+          flags: csharp-sdk-tests
+          name: csharp-sdk-coverage
+        continue-on-error: true
+
   lint:
     name: Lint & Format
     runs-on: ubuntu-latest
@@ -496,12 +545,19 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
+<<<<<<< HEAD
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
           working-directory: packages/ruby-sdk
+=======
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+>>>>>>> 874f86d (feat(csharp-sdk): Add C# SDK package with full feature parity)
 
       - name: Install dependencies
         run: npm ci

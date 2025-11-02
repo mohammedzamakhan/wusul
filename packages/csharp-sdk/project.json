@@ -1,0 +1,42 @@
+{
+  "name": "csharp-sdk",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/csharp-sdk/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet build Wusul.csproj",
+        "cwd": "packages/csharp-sdk"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet test Wusul.Tests.csproj --logger \"console;verbosity=detailed\"",
+        "cwd": "packages/csharp-sdk"
+      }
+    },
+    "pack": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet pack Wusul.csproj -c Release -o ./dist",
+        "cwd": "packages/csharp-sdk"
+      },
+      "dependsOn": ["build"]
+    },
+    "clean": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "dotnet clean Wusul.csproj",
+          "dotnet clean Wusul.Tests.csproj"
+        ],
+        "cwd": "packages/csharp-sdk",
+        "parallel": false
+      }
+    }
+  },
+  "tags": ["sdk", "csharp"]
+}
