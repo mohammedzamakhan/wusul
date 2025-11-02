@@ -10,7 +10,7 @@ on:
         required: false
         type: string
       sdk:
-        description: 'Which SDK to publish (node, php, java, or all)'
+        description: 'Which SDK to publish (node, php, java, go, or all)'
         required: false
         type: choice
         options:
@@ -18,6 +18,7 @@ on:
           - node
           - php
           - java
+          - go
         default: 'all'
 
 jobs:
@@ -199,3 +200,73 @@ jobs:
           echo "2. Sign artifacts with GPG key" >> $GITHUB_STEP_SUMMARY
           echo "3. Deploy to Maven Central staging repository" >> $GITHUB_STEP_SUMMARY
           echo "4. Release from staging to production" >> $GITHUB_STEP_SUMMARY
+
+  publish-go-sdk:
+    name: Publish Go SDK
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.sdk == 'go' || github.event.inputs.sdk == 'all' || github.event.inputs.sdk == '' }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache-dependency-path: packages/go-sdk/go.sum
+
+      - name: Get Go dependencies
+        run: |
+          cd packages/go-sdk
+          go mod download
+          go mod tidy
+
+      - name: Run Go SDK tests
+        run: |
+          cd packages/go-sdk
+          go test -v ./...
+
+      - name: Build Go SDK
+        run: |
+          cd packages/go-sdk
+          go build ./...
+
+      - name: Run Go vet
+        run: |
+          cd packages/go-sdk
+          go vet ./...
+
+      - name: Update version (if specified)
+        if: github.event.inputs.version != ''
+        run: |
+          cd packages/go-sdk
+          # For Go modules, version is managed via git tags
+          echo "Version ${{ github.event.inputs.version }} will be published via git tag"
+
+      - name: Create GitHub Release Summary
+        run: |
+          echo "## 📦 Go SDK Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Wusul Go SDK is ready for use!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "go get github.com/mohammedzamakhan/wusul/packages/go-sdk" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Import in your code" >> $GITHUB_STEP_SUMMARY
+          echo '```go' >> $GITHUB_STEP_SUMMARY
+          echo 'import wusul "github.com/mohammedzamakhan/wusul/packages/go-sdk"' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** Go modules are distributed via GitHub." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Version Management" >> $GITHUB_STEP_SUMMARY
+          echo "Go SDK versions are managed through git tags." >> $GITHUB_STEP_SUMMARY
+          echo "To publish a new version:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Tag the release: \`git tag packages/go-sdk/v1.0.0\`" >> $GITHUB_STEP_SUMMARY
+          echo "2. Push the tag: \`git push origin packages/go-sdk/v1.0.0\`" >> $GITHUB_STEP_SUMMARY
+          echo "3. Users can then install with: \`go get github.com/mohammedzamakhan/wusul/packages/go-sdk@v1.0.0\`" >> $GITHUB_STEP_SUMMARY
