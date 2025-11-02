@@ -381,8 +381,7 @@ jobs:
           echo "Projects affected by this PR:"
           npx nx show projects --affected --base=origin/${{ github.base_ref }}
 
-          echo -e "\nAffected build targets:"
-          npx nx print-affected --target=build --base=origin/${{ github.base_ref }}
+          echo -e "\nRunning affected tests..."
 
       - name: Run affected tests
         run: npx nx affected --target=test --base=origin/${{ github.base_ref }} --parallel=3
