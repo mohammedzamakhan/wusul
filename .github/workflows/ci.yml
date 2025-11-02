@@ -468,6 +468,11 @@ jobs:
       - name: Generate Prisma Client
         run: npm run prisma:generate
 
+      - name: Install Python SDK dependencies
+        run: |
+          cd packages/python-sdk
+          pip install -e ".[dev]"
+
       - name: Fetch base branch
         run: git fetch origin ${{ github.base_ref }}
 
