@@ -15,6 +15,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>wusul;access-control;nfc;digital-wallet;apple-wallet;google-wallet;mena;sdk;api-client</PackageTags>
+    <DefaultItemExcludes>$(DefaultItemExcludes);tests/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

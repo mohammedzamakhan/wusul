@@ -41,7 +41,7 @@ namespace Wusul
         /// <summary>
         /// Console resource for managing card templates (Enterprise only)
         /// </summary>
-        public Console Console { get; }
+        public Resources.Console Console { get; }
 
         /// <summary>
         /// Creates a new Wusul client instance
@@ -83,7 +83,7 @@ namespace Wusul
 
             _http = new WusulHttpClient(accountId, sharedSecret, baseUrl, timeout);
             AccessPasses = new AccessPasses(_http);
-            Console = new Console(_http);
+            Console = new Resources.Console(_http);
         }
 
         /// <summary>

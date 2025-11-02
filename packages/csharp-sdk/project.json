@@ -7,14 +7,14 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "dotnet build Wusul.csproj",
+        "command": "dotnet build Wusul.sln --configuration Release",
         "cwd": "packages/csharp-sdk"
       }
     },
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "dotnet test Wusul.Tests.csproj --logger \"console;verbosity=detailed\"",
+        "command": "dotnet test Wusul.sln --logger \"console;verbosity=detailed\"",
         "cwd": "packages/csharp-sdk"
       }
     },
@@ -29,12 +29,8 @@
     "clean": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "dotnet clean Wusul.csproj",
-          "dotnet clean Wusul.Tests.csproj"
-        ],
-        "cwd": "packages/csharp-sdk",
-        "parallel": false
+        "command": "dotnet clean Wusul.sln",
+        "cwd": "packages/csharp-sdk"
       }
     }
   },

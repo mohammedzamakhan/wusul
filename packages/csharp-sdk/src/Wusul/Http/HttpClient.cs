@@ -169,14 +169,14 @@ namespace Wusul.Http
             try
             {
                 var wusulResponse = JsonConvert.DeserializeObject<WusulResponse<T>>(content);
-                if (wusulResponse?.Data != null)
+                if (wusulResponse != null && !EqualityComparer<T>.Default.Equals(wusulResponse.Data, default(T)))
                 {
                     return wusulResponse.Data;
                 }
 
                 // If there's no data wrapper, try to deserialize directly
                 var directResponse = JsonConvert.DeserializeObject<T>(content);
-                if (directResponse != null)
+                if (directResponse != null && !EqualityComparer<T>.Default.Equals(directResponse, default(T)))
                 {
                     return directResponse;
                 }

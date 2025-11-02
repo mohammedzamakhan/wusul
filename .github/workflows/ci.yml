@@ -377,21 +377,15 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore dependencies
-        run: |
-          cd packages/csharp-sdk
-          dotnet restore Wusul.csproj
-          dotnet restore Wusul.Tests.csproj
-
       - name: Build C# SDK
         run: |
           cd packages/csharp-sdk
-          dotnet build Wusul.csproj --configuration Release --no-restore
+          dotnet build Wusul.sln --configuration Release
 
       - name: Run C# SDK tests
         run: |
           cd packages/csharp-sdk
-          dotnet test Wusul.Tests.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
+          dotnet test Wusul.sln --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
 
       - name: Upload C# SDK test results
         uses: actions/upload-artifact@v4

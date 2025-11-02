@@ -12,7 +12,7 @@ namespace Wusul.Models
         public bool Success { get; set; }
 
         [JsonProperty("data")]
-        public T? Data { get; set; }
+        public T Data { get; set; } = default!;
 
         [JsonProperty("error")]
         public string? Error { get; set; }
