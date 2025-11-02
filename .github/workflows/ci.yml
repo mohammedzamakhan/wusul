@@ -102,7 +102,7 @@ jobs:
         continue-on-error: true
 
   test-sdk:
-    name: Test SDK
+    name: Test Node SDK
     runs-on: ubuntu-latest
 
     steps:
@@ -128,16 +128,71 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nx-
 
-      - name: Run SDK tests
+      - name: Run Node SDK tests
         run: npm run test:sdk
 
-      - name: Upload SDK coverage
+      - name: Upload Node SDK coverage
         uses: codecov/codecov-action@v4
         if: always()
         with:
           files: ./coverage/packages/node-sdk/lcov.info
-          flags: sdk-tests
-          name: sdk-coverage
+          flags: node-sdk-tests
+          name: node-sdk-coverage
+        continue-on-error: true
+
+  test-php-sdk:
+    name: Test PHP SDK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: json, mbstring
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install PHP SDK dependencies
+        run: |
+          cd packages/php-sdk
+          composer install --prefer-dist --no-progress
+
+      - name: Run PHP SDK tests
+        run: |
+          cd packages/php-sdk
+          composer test
+
+      - name: Run PHP SDK static analysis
+        run: |
+          cd packages/php-sdk
+          composer analyse
+        continue-on-error: true
+
+      - name: Upload PHP SDK coverage
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./packages/php-sdk/coverage/clover.xml
+          flags: php-sdk-tests
+          name: php-sdk-coverage
         continue-on-error: true
 
   lint:
