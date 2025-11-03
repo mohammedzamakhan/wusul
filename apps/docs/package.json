@@ -1,0 +1,20 @@
+{
+  "name": "@wusul/docs",
+  "version": "1.0.0",
+  "description": "Wusul API Documentation with Mintlify",
+  "private": true,
+  "scripts": {
+    "dev": "mintlify dev",
+    "install:mintlify": "npm install -g mintlify",
+    "build": "echo 'Documentation is deployed via Mintlify'",
+    "lint": "echo 'Linting documentation...'"
+  },
+  "keywords": [
+    "wusul",
+    "documentation",
+    "api",
+    "mintlify"
+  ],
+  "author": "Wusul Team",
+  "license": "UNLICENSED"
+}

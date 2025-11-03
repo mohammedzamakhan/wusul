@@ -1,0 +1,224 @@
+---
+title: 'Quickstart'
+description: 'Get started with Wusul API in under 5 minutes'
+---
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+<Check>API credentials (Account ID and Shared Secret)</Check>
+<Check>A valid card template ID</Check>
+<Check>Your development environment set up</Check>
+
+If you don't have API credentials yet, contact our team at sales@wusul.com
+
+## Installation
+
+<Tabs>
+  <Tab title="Node.js">
+    ```bash
+    npm install @wusul/node-sdk
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```bash
+    pip install wusul-sdk
+    ```
+  </Tab>
+  <Tab title="PHP">
+    ```bash
+    composer require wusul/php-sdk
+    ```
+  </Tab>
+  <Tab title="Ruby">
+    ```bash
+    gem install wusul-sdk
+    ```
+  </Tab>
+  <Tab title="Java">
+    ```xml
+    <dependency>
+      <groupId>com.wusul</groupId>
+      <artifactId>wusul-sdk</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    ```
+  </Tab>
+  <Tab title="Go">
+    ```bash
+    go get github.com/wusul/go-sdk
+    ```
+  </Tab>
+  <Tab title="C#">
+    ```bash
+    dotnet add package Wusul.SDK
+    ```
+  </Tab>
+</Tabs>
+
+## Make Your First API Call
+
+Let's issue your first access pass!
+
+<Tabs>
+  <Tab title="Node.js">
+    ```javascript
+    const { WusulClient } = require('@wusul/node-sdk');
+
+    // Initialize the client
+    const client = new WusulClient({
+      accountId: 'your-account-id',
+      sharedSecret: 'your-shared-secret',
+      baseUrl: 'https://api.wusul.com' // Optional, defaults to production
+    });
+
+    // Issue an access pass
+    async function issueAccessPass() {
+      try {
+        const accessPass = await client.accessPasses.create({
+          card_template_id: '0xt3mp14t3',
+          full_name: 'Ahmed Al-Mansouri',
+          email: 'ahmed@company.com',
+          employee_id: 'EMP-001',
+          site_code: '123',
+          card_number: '45678',
+          start_date: '2025-01-01T00:00:00Z',
+          expiration_date: '2025-12-31T23:59:59Z',
+          classification: 'full_time',
+          title: 'Senior Engineer'
+        });
+
+        console.log('Access pass issued:', accessPass.data.id);
+        console.log('Install URL:', accessPass.data.install_url);
+      } catch (error) {
+        console.error('Error:', error.message);
+      }
+    }
+
+    issueAccessPass();
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    from wusul import WusulClient
+
+    # Initialize the client
+    client = WusulClient(
+        account_id='your-account-id',
+        shared_secret='your-shared-secret',
+        base_url='https://api.wusul.com'  # Optional
+    )
+
+    # Issue an access pass
+    try:
+        access_pass = client.access_passes.create(
+            card_template_id='0xt3mp14t3',
+            full_name='Ahmed Al-Mansouri',
+            email='ahmed@company.com',
+            employee_id='EMP-001',
+            site_code='123',
+            card_number='45678',
+            start_date='2025-01-01T00:00:00Z',
+            expiration_date='2025-12-31T23:59:59Z',
+            classification='full_time',
+            title='Senior Engineer'
+        )
+
+        print(f"Access pass issued: {access_pass['data']['id']}")
+        print(f"Install URL: {access_pass['data']['install_url']}")
+    except Exception as error:
+        print(f"Error: {error}")
+    ```
+  </Tab>
+  <Tab title="cURL">
+    ```bash
+    # First, generate the signature (example using a script)
+    SHARED_SECRET="your-shared-secret"
+    PAYLOAD='{"card_template_id":"0xt3mp14t3","full_name":"Ahmed Al-Mansouri","email":"ahmed@company.com","employee_id":"EMP-001","site_code":"123","card_number":"45678","start_date":"2025-01-01T00:00:00Z","expiration_date":"2025-12-31T23:59:59Z","classification":"full_time","title":"Senior Engineer"}'
+
+    # Base64 encode the payload
+    BASE64_PAYLOAD=$(echo -n "$PAYLOAD" | base64)
+
+    # Generate SHA256 signature
+    SIGNATURE=$(echo -n "${SHARED_SECRET}${BASE64_PAYLOAD}" | sha256sum | awk '{print $1}')
+
+    # Make the API call
+    curl -X POST https://api.wusul.com/v1/access-passes \
+      -H "Content-Type: application/json" \
+      -H "X-ACCT-ID: your-account-id" \
+      -H "X-PAYLOAD-SIG: $SIGNATURE" \
+      -d "$PAYLOAD"
+    ```
+  </Tab>
+</Tabs>
+
+## Understanding the Response
+
+A successful response will look like this:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "0xp4551d",
+    "install_url": "https://wusul.com/install/0xp4551d",
+    "state": "PENDING",
+    "created_at": "2025-01-15T10:30:00Z"
+  },
+  "metadata": {
+    "timestamp": "2025-01-15T10:30:00Z"
+  }
+}
+```
+
+<ResponseField name="id" type="string">
+  The unique identifier for the access pass
+</ResponseField>
+
+<ResponseField name="install_url" type="string">
+  URL that users can visit to install the pass on their device
+</ResponseField>
+
+<ResponseField name="state" type="string">
+  Current state of the access pass (PENDING, ACTIVE, SUSPENDED, etc.)
+</ResponseField>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Authentication Guide"
+    icon="lock"
+    href="/authentication"
+  >
+    Learn more about authentication and signature generation
+  </Card>
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/api-reference/introduction"
+  >
+    Explore all available endpoints
+  </Card>
+  <Card
+    title="SDK Documentation"
+    icon="puzzle-piece"
+    href="/sdks/overview"
+  >
+    Detailed SDK guides and examples
+  </Card>
+  <Card
+    title="Webhooks"
+    icon="bell"
+    href="/concepts/webhooks"
+  >
+    Set up webhooks for real-time notifications
+  </Card>
+</CardGroup>
+
+## Need Help?
+
+<Card title="Get Support" icon="life-ring">
+  Having trouble? Reach out to our support team at support@wusul.com
+</Card>
