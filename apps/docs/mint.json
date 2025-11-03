@@ -46,7 +46,9 @@
       "pages": [
         "introduction",
         "quickstart",
-        "authentication"
+        "authentication",
+        "best-practices",
+        "troubleshooting"
       ]
     },
     {
