@@ -10,8 +10,7 @@ export function encodePayload(payload: any): string {
 
 /**
  * Creates a signature for a payload using the shared secret
- * Following the AccessGrid-style authentication:
- * SHA256(shared_secret + base64_encoded_payload).hexdigest()
+ * Uses SHA256(shared_secret + base64_encoded_payload).hexdigest()
  */
 export function createSignature(sharedSecret: string, encodedPayload: string): string {
   const message = sharedSecret + encodedPayload;

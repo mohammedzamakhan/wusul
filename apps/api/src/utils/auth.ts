@@ -2,7 +2,7 @@ import crypto from 'crypto';
 
 /**
  * Generate a SHA256 hash signature for payload authentication
- * Implements AccessGrid's dual authentication mechanism
+ * Implements dual authentication mechanism using account ID and payload signature
  *
  * @param sharedSecret - The shared secret key
  * @param payload - The request payload (base64 encoded)
