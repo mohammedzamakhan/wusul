@@ -23,8 +23,7 @@ def create_signature(shared_secret: str, encoded_payload: str) -> str:
     """
     Create a signature for a payload using the shared secret.
 
-    Following the AccessGrid-style authentication:
-    SHA256(shared_secret + base64_encoded_payload).hexdigest()
+    Uses SHA256(shared_secret + base64_encoded_payload).hexdigest()
 
     Args:
         shared_secret: The shared secret key

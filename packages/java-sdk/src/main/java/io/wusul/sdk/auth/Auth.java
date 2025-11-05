@@ -34,8 +34,7 @@ public class Auth {
     /**
      * Creates a signature for a payload using the shared secret.
      * <p>
-     * Following the AccessGrid-style authentication:
-     * SHA256(shared_secret + base64_encoded_payload).hexdigest()
+     * Uses SHA256(shared_secret + base64_encoded_payload).hexdigest()
      *
      * @param sharedSecret The shared secret
      * @param encodedPayload The base64 encoded payload

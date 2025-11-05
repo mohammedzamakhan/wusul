@@ -17,8 +17,7 @@ func encodePayload(payload interface{}) (string, error) {
 }
 
 // createSignature creates a signature for a payload using the shared secret
-// Following the AccessGrid-style authentication:
-// SHA256(shared_secret + base64_encoded_payload).hexdigest()
+// Uses SHA256(shared_secret + base64_encoded_payload).hexdigest()
 func createSignature(sharedSecret, encodedPayload string) string {
 	message := sharedSecret + encodedPayload
 	hash := sha256.Sum256([]byte(message))

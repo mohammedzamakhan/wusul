@@ -7,7 +7,7 @@ import logger from '../config/logger';
 
 /**
  * Dual Authentication Middleware
- * Implements AccessGrid-style authentication with:
+ * Implements dual authentication with:
  * 1. X-ACCT-ID header for account identification
  * 2. X-PAYLOAD-SIG header for payload signature verification
  */

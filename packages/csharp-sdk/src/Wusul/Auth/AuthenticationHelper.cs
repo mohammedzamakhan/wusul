@@ -6,8 +6,7 @@ namespace Wusul.Auth
 {
     /// <summary>
     /// Authentication helper for creating signatures and auth headers
-    /// Following the AccessGrid-style authentication:
-    /// SHA256(shared_secret + base64_encoded_payload).hexdigest()
+    /// Uses SHA256(shared_secret + base64_encoded_payload).hexdigest()
     /// </summary>
     public static class AuthenticationHelper
     {
