@@ -153,6 +153,14 @@
             "sdks/csharp/usage",
             "sdks/csharp/examples"
           ]
+        },
+        {
+          "group": "Rust SDK",
+          "pages": [
+            "sdks/rust/installation",
+            "sdks/rust/usage",
+            "sdks/rust/examples"
+          ]
         }
       ]
     }
