@@ -15,7 +15,7 @@ Wusul is a complete digital access control ecosystem that enables businesses acr
 
 This monorepo contains:
 - **API Platform**: Production-ready REST API for access control management
-- **Multi-Language SDKs**: Official client libraries for 7+ programming languages
+- **Multi-Language SDKs**: Official client libraries for 8+ programming languages
 - **Documentation**: Comprehensive Mintlify-powered documentation site
 
 ### Key Features
@@ -26,7 +26,7 @@ This monorepo contains:
 - **🔔 Webhook System**: CloudEvents-compliant webhook notifications
 - **🌍 MENA-Optimized**: Full Arabic language support, regional compliance, and prayer time integration
 - **🏢 Enterprise Ready**: Multi-tenant architecture with role-based access control
-- **📚 Multi-Language SDKs**: Node.js, PHP, Python, Java, Go, C#, and Ruby
+- **📚 Multi-Language SDKs**: Node.js, PHP, Python, Java, Go, C#, Ruby, and Rust
 - **📖 Comprehensive Documentation**: Interactive API docs powered by Mintlify
 - **🚀 High Performance**: Built with Node.js, TypeScript, PostgreSQL, and Redis
 
@@ -58,7 +58,8 @@ wusul/
 │   ├── java-sdk/             # Java SDK
 │   ├── go-sdk/               # Go SDK
 │   ├── csharp-sdk/           # C# SDK
-│   └── ruby-sdk/             # Ruby SDK
+│   ├── ruby-sdk/             # Ruby SDK
+│   └── rust-sdk/             # Rust SDK
 │
 ├── examples/                 # Example implementations
 ├── docker-compose.yml        # Development services
@@ -86,6 +87,7 @@ wusul/
 - **Go**: Go modules support
 - **C#**: .NET Standard 2.0+
 - **Ruby**: RubyGems compatible
+- **Rust**: Async-first with tokio, type-safe with comprehensive error handling
 
 ### Infrastructure
 - **Monorepo**: Nx for build orchestration
@@ -234,6 +236,37 @@ pass_data = client.access_passes.create(
 )
 ```
 
+#### Rust
+
+```bash
+cargo add wusul
+cargo add tokio --features full
+```
+
+```rust
+use wusul::{Wusul, types::IssueAccessPassParams};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = Wusul::new(
+        "your-account-id".to_string(),
+        "your-shared-secret".to_string()
+    )?;
+
+    let params = IssueAccessPassParams {
+        card_template_id: "template-id".to_string(),
+        full_name: "Ahmed Al-Mansouri".to_string(),
+        email: Some("ahmed@company.com".to_string()),
+        start_date: "2024-01-01".to_string(),
+        expiration_date: "2024-12-31".to_string(),
+        ..Default::default()
+    };
+
+    let pass = client.access_passes.issue(params).await?;
+    Ok(())
+}
+```
+
 For detailed SDK documentation, see the respective package README files or visit our [documentation site](https://wusul.com/docs).
 
 ## API Documentation
@@ -305,6 +338,7 @@ npm test
 # Test specific package
 npm run test:api
 npm run test:sdk
+npm run test:rust-sdk
 
 # Build all packages
 npm run build
@@ -312,6 +346,7 @@ npm run build
 # Build specific package
 npm run build:api
 npm run build:sdk
+npm run build:rust-sdk
 
 # Lint and format
 npm run lint
@@ -418,7 +453,7 @@ packages/*-sdk → (none - each SDK is independent)
 - Multi-language support (English & Arabic i18n)
 - SMS/Email notifications
 - CloudEvents-compliant webhooks
-- 7 official SDKs (Node.js, PHP, Python, Java, Go, C#, Ruby)
+- 8 official SDKs (Node.js, PHP, Python, Java, Go, C#, Ruby, Rust)
 - Comprehensive documentation site
 - Monorepo architecture with Nx
 
@@ -471,7 +506,7 @@ Licensed under UNLICENSED. See the LICENSE file for details.
 
 ## Project Stats
 
-- **7 Official SDKs**: Node.js, PHP, Python, Java, Go, C#, Ruby
+- **8 Official SDKs**: Node.js, PHP, Python, Java, Go, C#, Ruby, Rust
 - **2 Applications**: API Platform, Documentation Site
 - **Multi-Language**: Full English & Arabic support
 - **MENA-Focused**: Built for the Middle East & North Africa region
