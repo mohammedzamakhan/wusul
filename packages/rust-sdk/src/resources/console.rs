@@ -198,47 +198,32 @@ impl Console {
     }
 }
 
-impl Default for CardTemplateDesign {
-    fn default() -> Self {
-        Self {
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::{Platform, Protocol, UseCase, CardTemplateDesign, SupportInfo};
+
+    #[test]
+    fn test_card_template_design_default() {
+        let design = CardTemplateDesign {
             background_color: None,
             foreground_color: None,
             label_color: None,
             logo_url: None,
             hero_image_url: None,
             strip_image_url: None,
-        }
-    }
-}
-
-impl Default for SupportInfo {
-    fn default() -> Self {
-        Self {
-            email: None,
-            phone: None,
-            website: None,
-        }
-    }
-}
-
-// Import SupportInfo into scope
-use crate::types::SupportInfo;
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::types::{Platform, Protocol, UseCase};
-
-    #[test]
-    fn test_card_template_design_default() {
-        let design = CardTemplateDesign::default();
+        };
         assert!(design.background_color.is_none());
         assert!(design.logo_url.is_none());
     }
 
     #[test]
-    fn test_support_info_default() {
-        let info = SupportInfo::default();
+    fn test_support_info_creation() {
+        let info = SupportInfo {
+            email: None,
+            phone: None,
+            website: None,
+        };
         assert!(info.email.is_none());
         assert!(info.phone.is_none());
     }

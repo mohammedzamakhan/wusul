@@ -184,7 +184,7 @@ pub struct UpdateAccessPassParams {
 }
 
 /// Design configuration for a card template
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct CardTemplateDesign {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -202,7 +202,7 @@ pub struct CardTemplateDesign {
 }
 
 /// Support information for a card template
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SupportInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
